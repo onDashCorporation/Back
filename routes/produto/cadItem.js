@@ -75,7 +75,7 @@ router.post('/', upload.single('foto'), (req, res) => {
             message: 'A quantidade minima não pode ser menor do que 0'
         })
     }
-  
+
     const itemPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
 
@@ -84,29 +84,17 @@ router.post('/', upload.single('foto'), (req, res) => {
             message: 'O nome do item deve ter apenas a primeira letra da sentença maiuscula'
         })
     }
-    console.log(typeof fk_categoriaId) 
+    console.log(typeof fk_categoriaId)
 
     const new_fk_categoriaId = parseInt(fk_categoriaId)
-    console.log(typeof new_fk_categoriaId) 
-    console.log(new_fk_categoriaId) 
+    // console.log(typeof new_fk_categoriaId) 
+    // console.log(new_fk_categoriaId) 
 
     if (!Number.isInteger(new_fk_categoriaId)) {
         return res.status(400).json({
             message: 'Insira o id da categoria como um número inteiro'
         });
     }
-    // if (!Number.isInteger(fk_categoriaId)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id da categoria como um número inteiro'
-    //     });
-    // }
-
-    // if (!String(fk_categoriaId).match(itemPattern)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id do item'
-    //     })
-    // }
-
 
     const validationItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE nome = ?"
     db.query(validationItem, [nome], (err, result) => {
@@ -122,7 +110,7 @@ router.post('/', upload.single('foto'), (req, res) => {
             });
         }
 
-        const validationCategoria = "SELECT categoriaId FROM categoria WHERE nome = ?";
+        const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
         // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
         db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
             if (err) {
@@ -135,7 +123,7 @@ router.post('/', upload.single('foto'), (req, res) => {
                     message: 'A categoria especificada não existe'
                 });
             }
-            
+
             const categoriaId = result[0].categoriaId;
 
             const sql = "INSERT INTO cadastroitem (`foto`, `nome`, `qtdMinima`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
@@ -198,6 +186,7 @@ router.get('/:id', (req, res) => {
 router.put('/:id', upload.single('foto'), (req, res) => {
     const id = req.params.id;
     const {
+        cadItemId,
         nome,
         qtdMinima,
         fk_categoriaId
@@ -215,21 +204,30 @@ router.put('/:id', upload.single('foto'), (req, res) => {
             message: 'A quantidade minima não pode ser menor do que 0'
         })
     }
-    if (!Number.isInteger(fk_categoriaId)) {
-        return res.status(400).json({
-            message: 'Insira o id doa categoria como um número inteiro'
-        });
-    }
 
     const itemPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
+
 
     if (!nome.match(itemPattern)) {
         return res.status(400).json({
             message: 'O nome do item deve ter apenas a primeira letra da sentença maiuscula'
         })
     }
-    const validationCategoria = "SELECT fk_categoriaId FROM categoria WHERE nome = ?";
-    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+    console.log(typeof fk_categoriaId)
+
+    const new_fk_categoriaId = parseInt(fk_categoriaId)
+    // console.log(typeof new_fk_categoriaId) 
+    // console.log(new_fk_categoriaId) 
+
+    if (!Number.isInteger(new_fk_categoriaId)) {
+        return res.status(400).json({
+            message: 'Insira o id da categoria como um número inteiro'
+        });
+    }
+
+    const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
+    // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+    db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -240,10 +238,11 @@ router.put('/:id', upload.single('foto'), (req, res) => {
                 message: 'A categoria especificada não existe'
             });
         }
-        const fk_categoriaId = result[0].fk_categoriaId;
 
-        const sql = "UPDATE cadastroitem SET foto =?, nome = ?, qtdMinima = ?, fk_categoriaId = ? WHERE itemId = ?";
-        const values = [foto.filename, nome, qtdMinima, fk_categoriaId, id];
+        const categoriaId = result[0].categoriaId;
+
+        const sql = "UPDATE cadastroitem SET foto =?, nome = ?, qtdMinima = ?, fk_categoriaId = ? WHERE cadItemId = ?";
+        const values = [foto.filename, nome, qtdMinima, categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -265,7 +264,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM cadastroitem WHERE itemId = ?";
+    const sql = "DELETE FROM cadastroitem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {

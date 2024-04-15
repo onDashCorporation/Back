@@ -41,6 +41,11 @@ router.post('/', (req, res) => {
             message: 'Insira o id do item como um número inteiro'
         });
     }
+    if (!Number.is(fk_cadItemId)) {
+        return res.status(400).json({
+            message: 'Insira o id do item como um número inteiro'
+        });
+    }
 
     if(qtde < 0){
         return res.status(400).json({
