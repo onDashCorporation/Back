@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
 
     if (!qtdSaida || !qtdEntrada || !precoMedio || !fk_solicitacaoId) {
         return res.status(400).json({
-            message: 'Todos os campos são obrigatórios!'
+            message: 'Todos os campos são obrigatórooios!'
         })
     }
 
