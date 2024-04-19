@@ -61,8 +61,9 @@ router.post('/', (req, res) => {
     });
 });
 
+
 router.get('/', (req, res) => {
-    const sql = "SELECT fk_solicId FROM controle";
+    const sql = "SELECT * FROM view_controle";
     const values = [req.body.fk_solicId];
 
     db.query(sql, values, (err, data) => {
