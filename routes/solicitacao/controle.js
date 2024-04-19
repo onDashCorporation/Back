@@ -28,7 +28,7 @@ router.post('/', (req, res) => {
         })
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE soliciId = ?";
+    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
     db.query(validationSolicitacao, [fk_solicId], (err, result) => {
         if (err) {
             return res.status(500).json({
@@ -63,7 +63,7 @@ router.post('/', (req, res) => {
 
 
 router.get('/', (req, res) => {
-    const sql = "SELECT * FROM view_controle";
+    const sql = "SELECT * FROM view_controle_soli";
     const values = [req.body.fk_solicId];
 
     db.query(sql, values, (err, data) => {
@@ -79,7 +79,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT fk_solicId FROM controle WHERE solicId = ?";
+    const sql = "SELECT solicId FROM view_controle_soli WHERE solicId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
