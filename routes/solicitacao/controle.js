@@ -3,10 +3,7 @@
 Modelo de inserção de dados para teste no postman: 
 
 {
-    "qtdSaida": 2,
-    "qtdEntrada": 1,
-    "precoMedio": 400,
-    "fk_solicitacaoId":1
+    "fk_solicId":1
 }
 */
 
