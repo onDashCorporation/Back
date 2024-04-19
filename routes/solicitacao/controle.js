@@ -19,7 +19,7 @@ router.post('/', (req, res) => {
         fk_solicId
     } = req.body
 
-    if (! fk_solicId) {
+    if (!fk_solicId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
