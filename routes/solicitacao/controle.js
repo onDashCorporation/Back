@@ -3,10 +3,7 @@
 Modelo de inserção de dados para teste no postman: 
 
 {
-    "qtdSaida": 2,
-    "qtdEntrada": 1,
-    "precoMedio": 400,
-    "fk_solicitacaoId":1
+    "fk_solicId":1
 }
 */
 
@@ -19,20 +16,17 @@ const db = createDBConnection()
 
 router.post('/', (req, res) => {
     const {
-        qtdSaida,
-        qtdEntrada,
-        precoMedio,
-        fk_solicitacaoId
+        fk_solicId
     } = req.body
 
-    if (!qtdSaida || !qtdEntrada || !precoMedio || !fk_solicitacaoId) {
+    if (!fk_solicId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicitacaoId = ?";
-    db.query(validationSolicitacao, [fk_solicitacaoId], (err, result) => {
+    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
+    db.query(validationSolicitacao, [fk_solicId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -45,12 +39,9 @@ router.post('/', (req, res) => {
             });
         }
 
-        const sql = "INSERT INTO controle (`qtdSaida`, `qtdEntrada`, `precoMedio`, `fk_solicitacaoId`) VALUES (?, ?, ?, ?)";
+        const sql = "INSERT INTO controle (`fk_solicId`) VALUES (?)";
         const values = [
-            qtdSaida,
-            qtdEntrada,
-            precoMedio,
-            fk_solicitacaoId
+            fk_solicId
         ];
 
         db.query(sql, values, (err, data) => {
@@ -67,9 +58,10 @@ router.post('/', (req, res) => {
     });
 });
 
+
 router.get('/', (req, res) => {
-    const sql = "SELECT qtdSaida, qtdEntrada, precoMedio, fk_solicitacaoId FROM controle";
-    const values = [req.body.qtdSaida, req.body.qtdEntrada, req.body.precoMedio, req.body.fk_solicitacaoId];
+    const sql = "SELECT * FROM view_controle_soli";
+    const values = [req.body.fk_solicId];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -84,7 +76,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT qtdSaida, qtdEntrada, precoMedio, fk_solicitacaoId FROM controle WHERE controleId = ?";
+    const sql = "SELECT solicId FROM view_controle_soli WHERE solicId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -105,20 +97,17 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
-        qtdSaida,
-        qtdEntrada,
-        precoMedio,
-        fk_solicitacaoId
+        fk_solicId
     } = req.body
 
-    if (!qtdSaida || !qtdEntrada || !precoMedio || !fk_solicitacaoId) {
+    if (!fk_solicId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicitacaoId = ?";
-    db.query(validationSolicitacao, [fk_solicitacaoId], (err, result) => {
+    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
+    db.query(validationSolicitacao, [fk_solicId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -131,8 +120,8 @@ router.put('/:id', (req, res) => {
             });
         }
 
-        const sql = "UPDATE controle SET qtdSaida = ?, qtdEntrada = ?, precoMedio = ?, fk_solicitacaoId = ? WHERE controleId = ?";
-        const values = [qtdSaida, qtdEntrada, precoMedio, fk_solicitacaoId, id];
+        const sql = "UPDATE controle SET fk_solicId = ? WHERE fk_solicId = ? ";
+        const values = [fk_solicId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -154,7 +143,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM controle WHERE controleId = ?";
+    const sql = "DELETE FROM controle WHERE fk_solicId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
