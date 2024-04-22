@@ -54,6 +54,9 @@ app.use('/item', cadItemRoutes);
 const categoriaRoutes = require('./routes/produto/categoria'); 
 app.use('/categoria', categoriaRoutes);
 
+const estoqueRoutes = require('./routes/produto/estoque'); 
+app.use('/estoque', estoqueRoutes);
+
 const qtdItemRoutes = require('./routes/produto/qtdItem'); 
 app.use('/qtditem',qtdItemRoutes);
 
