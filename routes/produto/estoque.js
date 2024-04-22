@@ -16,52 +16,92 @@ const db = createDBConnection()
 
 router.post('/', (req, res) => {
     const {
-        fk_solicId
+        qtdeTotal,
+        fk_categoriaId,
+        fk_cadItemId,
+        fk_qtdItemId,
+        precoMedio
     } = req.body
 
-    if (!fk_solicId) {
+    if (!qtdeTotal || !fk_categoriaId || !fk_cadItemId || !fk_qtdItemId || !precoMedio) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
-    db.query(validationSolicitacao, [fk_solicId], (err, result) => {
+    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
+    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        const solicitaçãoExists = result[0].count > 0;
-        if (!solicitaçãoExists) {
+        const categoriaExists = result[0].count > 0;
+        if (!categoriaExists) {
             return res.status(400).json({
-                message: 'Solicitação inválida'
+                message: 'Categoria Inválida'
             });
         }
 
-        const sql = "INSERT INTO controle (`fk_solicId`) VALUES (?)";
-        const values = [
-            fk_solicId
-        ];
-
-        db.query(sql, values, (err, data) => {
+        const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
+        db.query(validationCadItem, [fk_cadItemId], (err, result) => {
             if (err) {
                 return res.status(500).json({
                     error: err.message
                 });
-            } else {
-                res.status(201).json({
-                    message: 'Dados inseridos no sistema com sucesso'
-                })
             }
+            const cadItemExists = result[0].count > 0;
+            if (!cadItemExists) {
+                return res.status(400).json({
+                    message: 'Item inválido (cadastro)'
+                });
+            }
+
+            const validationQtdItem = "SELECT COUNT(*) AS count FROM qtdItem WHERE qtdItemId = ?";
+            db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+                const qtdItemExists = result[0].count > 0;
+                if (!qtdItemExists) {
+                    return res.status(400).json({
+                        message: 'Item inválido (qtd)'
+                    });
+                }
+
+                const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_categoriaId`, `fk_cadItemId`, `fk_qtdItemId`, `precoMedio`, ) VALUES (?, ?, ?, ?, ?)";
+                const values = [
+                    qtdeTotal,
+                    fk_categoriaId,
+                    fk_cadItemId,
+                    fk_qtdItemId,
+                    precoMedio
+                ];
+
+                db.query(sql, values, (err, data) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: err.message
+                        });
+                    } else {
+                        res.status(201).json({
+                            message: 'Dados inseridos no sistema com sucesso'
+                        })
+                    }
+                });
+            });
         });
     });
 });
 
 
 router.get('/', (req, res) => {
-    const sql = "SELECT * FROM view_controle_soli";
-    const values = [req.body.fk_solicId];
+    const sql = "SELECT * FROM view_estoque";
+    const values = [req.estoqueId, req.body.qtdeTotal, req.body.fk_categoriaId, req.body.fk_cadItemId,
+        req.body.fk_qtdItemId, req.body.precoMedio
+    ];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -76,7 +116,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT solicId FROM view_controle_soli WHERE solicId = ?";
+    const sql = "SELECT qtdeTotal, fk_categoriaId, fk_cadItemId, fk_qtdItemId, precoMedio FROM view_estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -87,7 +127,7 @@ router.get('/:id', (req, res) => {
         }
         if (data.length === 0) {
             return res.status(404).json({
-                message: 'Controle não encontrado'
+                message: 'Estoque não encontrado'
             });
         }
         res.status(200).json(data[0]);
@@ -97,45 +137,86 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
-        fk_solicId
+        qtdeTotal,
+        fk_categoriaId,
+        fk_cadItemId,
+        fk_qtdItemId,
+        precoMedio
     } = req.body
 
-    if (!fk_solicId) {
+    if (!qtdeTotal || !fk_categoriaId || !fk_cadItemId || !fk_qtdItemId || !precoMedio) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
-    db.query(validationSolicitacao, [fk_solicId], (err, result) => {
+    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
+    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        const solicitaçãoExists = result[0].count > 0;
-        if (!solicitaçãoExists) {
+        const categoriaExists = result[0].count > 0;
+        if (!categoriaExists) {
             return res.status(400).json({
-                message: 'Solicitação inválida'
+                message: 'Categoria Inválida'
             });
         }
 
-        const sql = "UPDATE controle SET fk_solicId = ? WHERE fk_solicId = ? ";
-        const values = [fk_solicId, id];
-
-        db.query(sql, values, (err, data) => {
+        const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
+        db.query(validationCadItem, [fk_cadItemId], (err, result) => {
             if (err) {
                 return res.status(500).json({
                     error: err.message
                 });
             }
-            if (data.length === 0) {
-                return res.status(404).json({
-                    message: 'Controle não encontrado'
+            const cadItemExists = result[0].count > 0;
+            if (!cadItemExists) {
+                return res.status(400).json({
+                    message: 'Item inválido (cadastro)'
                 });
             }
-            res.status(200).json({
-                message: 'Dados atualizados do sistema com sucesso'
+
+            const validationQtdItem = "SELECT COUNT(*) AS count FROM qtdItem WHERE qtdItemId = ?";
+            db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+                const qtdItemExists = result[0].count > 0;
+                if (!qtdItemExists) {
+                    return res.status(400).json({
+                        message: 'Item inválido (qtd)'
+                    });
+                }
+
+
+                const sql = "UPDATE estoque SET qtdeTotal = ?, fk_categoriaId = ?, fk_cadItemId = ?, fk_qtdItemId = ?, precoMedio = ?  WHERE estoqueId = ? ";
+                const values = [qtdeTotal,
+                    fk_categoriaId,
+                    fk_cadItemId,
+                    fk_qtdItemId,
+                    precoMedio,
+                    id
+                ];
+
+                db.query(sql, values, (err, data) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: err.message
+                        });
+                    }
+                    if (data.length === 0) {
+                        return res.status(404).json({
+                            message: 'Estoque não encontrado'
+                        });
+                    }
+                    res.status(200).json({
+                        message: 'Dados atualizados do sistema com sucesso'
+                    });
+                });
             });
         });
     });
@@ -143,7 +224,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM controle WHERE fk_solicId = ?";
+    const sql = "DELETE FROM estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -154,7 +235,7 @@ router.delete('/:id', (req, res) => {
         }
         if (data.length === 0) {
             return res.status(404).json({
-                message: 'Controle não encontrado'
+                message: 'Estoque não encontrado'
             });
         }
         res.status(200).json({
