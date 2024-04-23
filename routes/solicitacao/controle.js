@@ -61,7 +61,7 @@ router.post('/', (req, res) => {
 
 router.get('/', (req, res) => {
     const sql = "SELECT * FROM view_controle";
-    const values = [req.body.fk_solicId];
+    const values = [req.body.controleId, req.body.fk_solicId];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -76,7 +76,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT solicId FROM view_controle WHERE solicId = ?";
+    const sql = "SELECT controleId, solicId FROM view_controle WHERE controleId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -120,7 +120,7 @@ router.put('/:id', (req, res) => {
             });
         }
 
-        const sql = "UPDATE controle SET fk_solicId = ? WHERE fk_solicId = ? ";
+        const sql = "UPDATE controle SET fk_solicId = ? WHERE controleId = ? ";
         const values = [fk_solicId, id];
 
         db.query(sql, values, (err, data) => {
@@ -143,7 +143,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM controle WHERE fk_solicId = ?";
+    const sql = "DELETE FROM controle WHERE controleId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {

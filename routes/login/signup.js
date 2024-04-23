@@ -26,7 +26,7 @@ const salt = 10
 // const validar = require('../../Querys/login/validarEmail')
 
 router.post('/', (req, res) => {
-    const { usuNome, email, senha, fk_cargoId, fk_departamentoId } = req.body
+    const { usuNome, email, senha, fk_cargoId, fk_depId } = req.body
 
     if (!usuNome || !email || !senha || !fk_cargoId) {
         return res.status(400).json({ message: 'Todos os campos são obrigatórios!' })
@@ -75,7 +75,7 @@ router.post('/', (req, res) => {
             return res.status(400).json({ message: 'Este email já está cadastrado' });
         }
 
-        const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_departamentoId`) VALUES (?, ?, ?, 3, 1)"
+        const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`) VALUES (?, ?, ?, 3, 1)"
 
         bcrypt.hash(req.body.senha.toString(), salt, (err, hash) =>{
             if(err) return res.json({Error: "Error no hashing de senha"})
@@ -83,7 +83,7 @@ router.post('/', (req, res) => {
                 usuNome,
                 email,
                 hash,
-                fk_departamentoId
+                fk_depId
                 
             ]
 
