@@ -26,9 +26,9 @@ const salt = 10
 // const validar = require('../../Querys/login/validarEmail')
 
 router.post('/', (req, res) => {
-    const { usuNome, email, senha, fk_cargoId, fk_departamentoId } = req.body
+    const { usuNome, email, senha, fk_departamentoId } = req.body
 
-    if (!usuNome || !email || !senha || !fk_cargoId) {
+    if (!usuNome || !email || !senha ) {
         return res.status(400).json({ message: 'Todos os campos são obrigatórios!' })
     }
     if (usuNome === senha) {
