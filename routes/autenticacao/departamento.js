@@ -3,7 +3,7 @@
 Modelo de inserção de dados para teste no postman: 
 
 {
-    "nome": "TI"
+    "nome_depart": "TI"
 }
 */
 
@@ -16,10 +16,10 @@ const db = createDBConnection()
 
 router.post('/', (req, res) => {
     const {
-        nome
+        nome_depart
     } = req.body
 
-    if (!nome) {
+    if (!nome_depart) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
@@ -27,14 +27,14 @@ router.post('/', (req, res) => {
 
     const departamentoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome.match(departamentoPattern)) {
+    if (!nome_depart.match(departamentoPattern)) {
         return res.status(400).json({
             message: 'O nome do departamento deve ter apenas a primeira letra da sentença maiuscula'
         })
     }
 
-    const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE nome = ?";
-    db.query(validationDepartamento, [nome], (err, result) => {
+    const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE nome_depart = ?";
+    db.query(validationDepartamento, [nome_depart], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -48,8 +48,8 @@ router.post('/', (req, res) => {
         }
 
 
-        const sql = "INSERT INTO departamento (`nome`) VALUES (?)";
-        const values = [nome];
+        const sql = "INSERT INTO departamento (`nome_depart`) VALUES (?)";
+        const values = [nome_depart];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -66,8 +66,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT departamentoId, nome FROM departamento";
-    const values = [req.body.departamentoId, req.body.nome];
+    const sql = "SELECT departamentoId, nome_depart FROM departamento";
+    const values = [req.body.departamentoId, req.body.nome_depart];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -82,7 +82,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT departamentoId, nome FROM departamento WHERE departamentoId = ?";
+    const sql = "SELECT departamentoId, nome_depart FROM departamento WHERE departamentoId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -103,10 +103,10 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
-        nome
+        nome_depart
     } = req.body
 
-    if (!nome) {
+    if (!nome_depart) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
@@ -119,8 +119,8 @@ router.put('/:id', (req, res) => {
         })
     }
 
-    const sql = "UPDATE departamento SET nome = ? WHERE departamentoId = ?";
-    const values = [nome, id];
+    const sql = "UPDATE departamento SET nome_depart = ? WHERE departamentoId = ?";
+    const values = [nome_depart, id];
 
     db.query(sql, values, (err, data) => {
         if (err) {

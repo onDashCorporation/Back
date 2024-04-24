@@ -17,45 +17,43 @@ const db = createDBConnection()
 router.post('/', (req, res) => {
     const {
         qtdeTotal,
-        fk_categoriaId,
-        fk_cadItemId,
         fk_qtdItemId,
         precoMedio
     } = req.body
 
-    if (!qtdeTotal || !fk_categoriaId || !fk_cadItemId || !fk_qtdItemId || !precoMedio) {
+    if (!qtdeTotal || !fk_qtdItemId || !precoMedio) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
-    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
-        if (err) {
-            return res.status(500).json({
-                error: err.message
-            });
-        }
-        const categoriaExists = result[0].count > 0;
-        if (!categoriaExists) {
-            return res.status(400).json({
-                message: 'Categoria Inválida'
-            });
-        }
+    // const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
+    // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+    //     if (err) {
+    //         return res.status(500).json({
+    //             error: err.message
+    //         });
+    //     }
+    //     const categoriaExists = result[0].count > 0;
+    //     if (!categoriaExists) {
+    //         return res.status(400).json({
+    //             message: 'Categoria Inválida'
+    //         });
+    //     }
 
-        const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
-        db.query(validationCadItem, [fk_cadItemId], (err, result) => {
-            if (err) {
-                return res.status(500).json({
-                    error: err.message
-                });
-            }
-            const cadItemExists = result[0].count > 0;
-            if (!cadItemExists) {
-                return res.status(400).json({
-                    message: 'Item inválido (cadastro)'
-                });
-            }
+    //     const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
+    //     db.query(validationCadItem, [fk_cadItemId], (err, result) => {
+    //         if (err) {
+    //             return res.status(500).json({
+    //                 error: err.message
+    //             });
+    //         }
+    //         const cadItemExists = result[0].count > 0;
+    //         if (!cadItemExists) {
+    //             return res.status(400).json({
+    //                 message: 'Item inválido (cadastro)'
+    //             });
+    //         }
 
             const validationQtdItem = "SELECT COUNT(*) AS count FROM qtdItem WHERE qtdItemId = ?";
             db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
@@ -71,11 +69,9 @@ router.post('/', (req, res) => {
                     });
                 }
 
-                const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_categoriaId`, `fk_cadItemId`, `fk_qtdItemId`, `precoMedio`, ) VALUES (?, ?, ?, ?, ?)";
+                const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_qtdItemId`, `precoMedio`, ) VALUES (?, ?, ?)";
                 const values = [
                     qtdeTotal,
-                    fk_categoriaId,
-                    fk_cadItemId,
                     fk_qtdItemId,
                     precoMedio
                 ];
@@ -93,13 +89,10 @@ router.post('/', (req, res) => {
                 });
             });
         });
-    });
-});
-
 
 router.get('/', (req, res) => {
     const sql = "SELECT * FROM view_estoque";
-    const values = [req.estoqueId, req.body.qtdeTotal, req.body.fk_categoriaId, req.body.fk_cadItemId,
+    const values = [req.estoqueId, req.body.qtdeTotal,
         req.body.fk_qtdItemId, req.body.precoMedio
     ];
 
@@ -116,7 +109,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT qtdeTotal, fk_categoriaId, fk_cadItemId, fk_qtdItemId, precoMedio FROM view_estoque WHERE estoqueId = ?";
+    const sql = "SELECT qtdeTotal, fk_qtdItemId, precoMedio FROM view_estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -138,45 +131,45 @@ router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
         qtdeTotal,
-        fk_categoriaId,
-        fk_cadItemId,
+        // fk_categoriaId,
+        // fk_cadItemId,
         fk_qtdItemId,
         precoMedio
     } = req.body
 
-    if (!qtdeTotal || !fk_categoriaId || !fk_cadItemId || !fk_qtdItemId || !precoMedio) {
+    if (!qtdeTotal || !fk_qtdItemId || !precoMedio) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
 
-    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
-    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
-        if (err) {
-            return res.status(500).json({
-                error: err.message
-            });
-        }
-        const categoriaExists = result[0].count > 0;
-        if (!categoriaExists) {
-            return res.status(400).json({
-                message: 'Categoria Inválida'
-            });
-        }
+    // const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
+    // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+    //     if (err) {
+    //         return res.status(500).json({
+    //             error: err.message
+    //         });
+    //     }
+    //     const categoriaExists = result[0].count > 0;
+    //     if (!categoriaExists) {
+    //         return res.status(400).json({
+    //             message: 'Categoria Inválida'
+    //         });
+    //     }
 
-        const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
-        db.query(validationCadItem, [fk_cadItemId], (err, result) => {
-            if (err) {
-                return res.status(500).json({
-                    error: err.message
-                });
-            }
-            const cadItemExists = result[0].count > 0;
-            if (!cadItemExists) {
-                return res.status(400).json({
-                    message: 'Item inválido (cadastro)'
-                });
-            }
+    //     const validationCadItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE cadItemId = ?";
+    //     db.query(validationCadItem, [fk_cadItemId], (err, result) => {
+    //         if (err) {
+    //             return res.status(500).json({
+    //                 error: err.message
+    //             });
+    //         }
+    //         const cadItemExists = result[0].count > 0;
+    //         if (!cadItemExists) {
+    //             return res.status(400).json({
+    //                 message: 'Item inválido (cadastro)'
+    //             });
+    //         }
 
             const validationQtdItem = "SELECT COUNT(*) AS count FROM qtdItem WHERE qtdItemId = ?";
             db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
@@ -193,10 +186,10 @@ router.put('/:id', (req, res) => {
                 }
 
 
-                const sql = "UPDATE estoque SET qtdeTotal = ?, fk_categoriaId = ?, fk_cadItemId = ?, fk_qtdItemId = ?, precoMedio = ?  WHERE estoqueId = ? ";
+                const sql = "UPDATE estoque SET qtdeTotal = ?, fk_qtdItemId = ?, precoMedio = ?  WHERE estoqueId = ? ";
                 const values = [qtdeTotal,
-                    fk_categoriaId,
-                    fk_cadItemId,
+                    // fk_categoriaId,
+                    // fk_cadItemId,
                     fk_qtdItemId,
                     precoMedio,
                     id
@@ -219,8 +212,6 @@ router.put('/:id', (req, res) => {
                 });
             });
         });
-    });
-});
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
