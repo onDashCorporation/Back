@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  # BACKEND 
+  backend:
+    container_name: container-acai-backend
+    build: ./
+    ports:
+      - "5000:5000"
+    networks:
+      - backend-network
+    restart: "always"
+    depends_on:
+      - database
+  database:
+    container_name: container-acai-database
+    build: ./database 
+    networks:
+      - backend-network
+    restart: "always"
+networks: 
+  backend-network:
+volumes:
+  data:
