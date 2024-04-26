@@ -26,6 +26,11 @@ router.post('/', (req, res) => {
             message: 'Todos os campos são obrigatórios!'
         })
     }
+    if (!Number.isFloat(precoMedio)) {
+        return res.status(400).json({
+            message: 'O Preço Médio deve entrar como Float'
+        });
+    }
 
     // const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE cateId = ?";
     // db.query(validationCategoria, [fk_categoriaId], (err, result) => {

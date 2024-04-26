@@ -24,6 +24,11 @@ router.post('/', (req, res) => {
             message: 'Todos os campos são obrigatórios!'
         })
     }
+    if (!Number.isInteger(fk_solicId)) {
+        return res.status(400).json({
+            message: 'Insira o id da categoria como um número inteiro'
+        });
+    }
 
     const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
     db.query(validationSolicitacao, [fk_solicId], (err, result) => {

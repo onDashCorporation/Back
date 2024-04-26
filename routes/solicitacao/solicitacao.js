@@ -65,9 +65,21 @@ router.post("/", async (req, res) => {
     // req.body.status = "novo"
     // status == defaultStatus
 
-    status = "novo"
+    status = "Novo"
   } else {
     status = req.body.status;
+  }
+
+  const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
+
+  if (!status.match(statusPattern)) {
+      return res.status(400).json({ message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula' })
+  }
+ //  status possiveis: lido, novo e autorizado
+  if(status != "Lido" && status != "Autorizado" && status != "Novo"){
+    return res.status(400).json({
+      message: 'Status inválido'
+    })
   }
   console.log("status", status)
 
@@ -93,9 +105,6 @@ router.post("/", async (req, res) => {
   if (qtdSaida && !qtdEntrada) {
     // req.body.qtdEntrada = 0;
     qtdEntrada = 0
-    valor_entrada = 0
-  }
-  if (!qtdEntrada) {
     valor_entrada = 0
   }
 

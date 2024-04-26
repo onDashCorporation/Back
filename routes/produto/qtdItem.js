@@ -52,6 +52,16 @@ router.post('/', (req, res) => {
             message: 'Insira um valor válido para quantidade'
         })
     }
+    if (!Number.isFloat(valorItem)) {
+        return res.status(400).json({
+            message: 'O valor do item deve entrar como Float'
+        });
+    }
+    if(valorItem < 0){
+        return res.status(400).json({
+            message: 'Insira um valor válido o preço do item'
+        })
+    }
     const validationItem = "SELECT COUNT(*) AS count FROM cadastroItem WHERE cadItemId  = ?";
     db.query(validationItem, [fk_cadItemId], (err, result) => {
       if (err) {
