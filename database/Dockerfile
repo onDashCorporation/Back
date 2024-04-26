@@ -4,7 +4,7 @@ FROM mysql:8.3.0
 ENV MYSQL_ALLOW_EMPTY_PASSWORD=true
 
 # copia o script para a pasta de inicialização de banco de dados do container
-COPY ./database/signup.sql /docker-entrypoint-initdb.d/
+COPY ./signup.sql /docker-entrypoint-initdb.d/
 
 # expoe a porta padrão do mysql
 EXPOSE 3306
