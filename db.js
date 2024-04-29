@@ -8,7 +8,7 @@ function createDBConnection() {
         host: process.env.HOST_DATABASE || "localhost",
         user: 'root',
         password: '',
-        database: process.env.DATABASE || 'signup'
+        database: process.env.DATABASE || 'onDash'
     });
     
     return db;

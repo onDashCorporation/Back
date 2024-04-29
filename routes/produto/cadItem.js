@@ -40,10 +40,10 @@ const upload = multer({
 router.post('/upload', upload.single('foto'), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
-    const sql = "UPDATE itens SET foto=?"
+    const sql = "UPDATE cadastroItem SET foto=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
-            Messge: "Error"
+            Message: "Error"
         })
         return res.json({
             Status: "Sucess"
@@ -59,18 +59,18 @@ router.post('/', upload.single('foto'), (req, res) => {
     const {
         cadItemId,
         nome_item,
-        qtdMinima,
+        qtdMin,
         fk_categoriaId
     } = req.body
     const foto = req.file
 
-    if (!nome_item || !qtdMinima || !fk_categoriaId || !foto) {
+    if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
     }
 
-    if (qtdMinima < 0) {
+    if (qtdMin < 0) {
         return res.status(400).json({
             message: 'A quantidade minima não pode ser menor do que 0'
         })
@@ -96,7 +96,7 @@ router.post('/', upload.single('foto'), (req, res) => {
         });
     }
 
-    const validationItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE nome_item = ?"
+    const validationItem = "SELECT COUNT(*) AS count FROM cadastroItem WHERE nome_item = ?"
     db.query(validationItem, [nome_item], (err, result) => {
         if (err) {
             return res.status(500).json({
@@ -126,9 +126,9 @@ router.post('/', upload.single('foto'), (req, res) => {
 
             const categoriaId = result[0].categoriaId;
 
-            const sql = "INSERT INTO cadastroitem (`foto`, `nome_item`, `qtdMinima`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
+            const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
             // const values = [foto.filename, nome, qtdMinima, fk_categoriaId];
-            const values = [foto.filename, nome_item, qtdMinima, categoriaId];
+            const values = [foto.filename, nome_item, qtdMin, categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
@@ -147,8 +147,8 @@ router.post('/', upload.single('foto'), (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT cadItemId, foto, nome_item, qtdMinima, fk_categoriaId FROM cadastroitem";
-    const values = [req.body.cadItemId, req.body.foto, req.body.nome_item, req.body.qtdMinima, req.body.fk_categoriaId];
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem";
+    const values = [req.body.cadItemId, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -164,7 +164,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT cadItemId, foto, nome_item, qtdMinima, fk_categoriaId FROM cadastroitem WHERE cadItemId = ?";
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -188,18 +188,18 @@ router.put('/:id', upload.single('foto'), (req, res) => {
     const {
         cadItemId,
         nome_item,
-        qtdMinima,
+        qtdMin,
         fk_categoriaId
     } = req.body
     const foto = req.file
 
-    if (!nome_item || !qtdMinima || !fk_categoriaId || !foto) {
+    if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
     }
 
-    if (qtdMinima < 0) {
+    if (qtdMin < 0) {
         return res.status(400).json({
             message: 'A quantidade minima não pode ser menor do que 0'
         })
@@ -241,8 +241,8 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
         const categoriaId = result[0].categoriaId;
 
-        const sql = "UPDATE cadastroitem SET foto =?, nome_item = ?, qtdMinima = ?, fk_categoriaId = ? WHERE cadItemId = ?";
-        const values = [foto.filename, nome_item, qtdMinima, categoriaId, id];
+        const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
+        const values = [foto.filename, nome_item, qtdMin, categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -264,7 +264,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM cadastroitem WHERE cadItemId = ?";
+    const sql = "DELETE FROM cadastroItem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {

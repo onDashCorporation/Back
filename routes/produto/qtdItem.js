@@ -76,7 +76,7 @@ router.post('/', (req, res) => {
         });
       }
 
-    const sql = "INSERT INTO qtditem (`fk_cadItemId`, `qtde`, `valorItem`) VALUES (?, ?, ?)";
+    const sql = "INSERT INTO qtdItem (`fk_cadItemId`, `qtde`, `valorItem`) VALUES (?, ?, ?)";
     const values = [fk_cadItemId, qtde, valorItem];
 
     db.query(sql, values, (err, data) => {
@@ -94,8 +94,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT qtdItem_id, fk_cadItemId, qtde, valorItem FROM qtditem";
-    const values = [req.body.qtdItem_id, req.body.fk_cadItemId, req.body.fk_qtde, req.body.fk_valorItem];
+    const sql = "SELECT qtdItemId, fk_cadItemId, qtde, valorItem FROM qtdItem";
+    const values = [req.body.qtdItemId, req.body.fk_cadItemId, req.body.fk_qtde, req.body.fk_valorItem];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -110,7 +110,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT qtdItem_id, fk_cadItemId, qtde, valorItem FROM qtditem WHERE qtdItem_id = ?";
+    const sql = "SELECT qtdItemId, fk_cadItemId, qtde, valorItem FROM qtdItem WHERE qtdItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -162,7 +162,7 @@ router.put('/:id', (req, res) => {
         })
     }
 
-    const sql = "UPDATE qtditem SET fk_cadItemId = ?, qtde = ?, valorItem = ? WHERE qtdItem_id = ?";
+    const sql = "UPDATE qtdItem SET fk_cadItemId = ?, qtde = ?, valorItem = ? WHERE qtdItemId = ?";
     const values = [fk_cadItemId, qtde, valorItem, id];
 
     db.query(sql, values, (err, data) => {
@@ -184,7 +184,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM qtditem WHERE qtdItem_id = ?";
+    const sql = "DELETE FROM qtdItem WHERE qtdItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
