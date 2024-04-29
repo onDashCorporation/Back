@@ -18,10 +18,9 @@ router.post('/', (req, res) => {
     const {
         qtdeTotal,
         fk_qtdItemId,
-        precoMedio
     } = req.body
 
-    if (!qtdeTotal || !fk_qtdItemId || !precoMedio) {
+    if (!qtdeTotal || !fk_qtdItemId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
@@ -74,11 +73,10 @@ router.post('/', (req, res) => {
                     });
                 }
 
-                const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_qtdItemId`, `precoMedio`, ) VALUES (?, ?, ?)";
+                const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_qtdItemId`) VALUES (?, ?, ?)";
                 const values = [
                     qtdeTotal,
                     fk_qtdItemId,
-                    precoMedio
                 ];
 
                 db.query(sql, values, (err, data) => {
@@ -97,24 +95,21 @@ router.post('/', (req, res) => {
 
 router.get('/', (req, res) => {
     const sql = "SELECT * FROM view_estoque";
-    const values = [req.estoqueId, req.body.qtdeTotal,
-        req.body.fk_qtdItemId, req.body.precoMedio
-    ];
 
-    db.query(sql, values, (err, data) => {
+    db.query(sql, (err, data) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         } else {
-            res.status(201).json(data);
+            res.status(200).json(data);
         }
     });
 });
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT qtdeTotal, fk_qtdItemId, precoMedio FROM view_estoque WHERE estoqueId = ?";
+    const sql = "SELECT qtdeTotal, fk_qtdItemId, FROM view_estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -136,13 +131,10 @@ router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
         qtdeTotal,
-        // fk_categoriaId,
-        // fk_cadItemId,
-        fk_qtdItemId,
-        precoMedio
+        fk_qtdItemId
     } = req.body
 
-    if (!qtdeTotal || !fk_qtdItemId || !precoMedio) {
+    if (!qtdeTotal || !fk_qtdItemId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
@@ -191,12 +183,9 @@ router.put('/:id', (req, res) => {
                 }
 
 
-                const sql = "UPDATE estoque SET qtdeTotal = ?, fk_qtdItemId = ?, precoMedio = ?  WHERE estoqueId = ? ";
+                const sql = "UPDATE estoque SET qtdeTotal = ?, fk_qtdItemId = ? WHERE estoqueId = ? ";
                 const values = [qtdeTotal,
-                    // fk_categoriaId,
-                    // fk_cadItemId,
                     fk_qtdItemId,
-                    precoMedio,
                     id
                 ];
 

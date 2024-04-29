@@ -54,8 +54,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT categoriaId, nome_categoria FROM categoria";
-    const values = [req.body.categoriaId, req.body.nome_categoria];
+    const sql = "SELECT cateId, nome_categoria FROM categoria";
+    const values = [req.body.cateId, req.body.nome_categoria];
     
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -69,7 +69,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "SELECT categoriaId, nome_categoria FROM categoria WHERE categoriaId = ?";
+        const sql = "SELECT cateId, nome_categoria FROM categoria WHERE cateId = ?";
         const values = [id];
      
         db.query(sql, values, (err, data) => {
@@ -97,7 +97,7 @@ router.put('/:id', (req, res) => {
     }
     
     
-    const sql = "UPDATE categoria SET nome_categoria = ? WHERE categoriaId = ?";
+    const sql = "UPDATE categoria SET nome_categoria = ? WHERE cateId = ?";
     const values = [nome_categoria, id];
      
         db.query(sql, values, (err, data) => {
@@ -113,7 +113,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "DELETE FROM categoria WHERE categoriaId = ?";
+        const sql = "DELETE FROM categoria WHERE cateId = ?";
         const values = [id];
          
         db.query(sql, values, (err, data) => {

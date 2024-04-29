@@ -8,21 +8,17 @@ Modelo de inserção de dados para teste no postman:
 */
 
 const express = require('express');
-
 const router = express.Router();
-
-const createDBConnection = require('../../db')
-const db = createDBConnection()
+const createDBConnection = require('../../db');
+const db = createDBConnection();
 
 router.post('/', (req, res) => {
-    const {
-        fk_solicId
-    } = req.body
+    const { fk_solicId } = req.body;
 
     if (!fk_solicId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
-        })
+        });
     }
     if (!Number.isInteger(fk_solicId)) {
         return res.status(400).json({
@@ -30,24 +26,22 @@ router.post('/', (req, res) => {
         });
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
+    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoProd WHERE solicId = ?";
     db.query(validationSolicitacao, [fk_solicId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        const solicitaçãoExists = result[0].count > 0;
-        if (!solicitaçãoExists) {
+        const solicitacaoExists = result[0].count > 0;
+        if (!solicitacaoExists) {
             return res.status(400).json({
                 message: 'Solicitação inválida'
             });
         }
 
         const sql = "INSERT INTO controle (`fk_solicId`) VALUES (?)";
-        const values = [
-            fk_solicId
-        ];
+        const values = [fk_solicId];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -57,24 +51,21 @@ router.post('/', (req, res) => {
             } else {
                 res.status(201).json({
                     message: 'Dados inseridos no sistema com sucesso'
-                })
+                });
             }
         });
     });
 });
 
-
 router.get('/', (req, res) => {
     const sql = "SELECT * FROM view_controle";
-    const values = [req.body.controleId, req.body.fk_solicId];
-
-    db.query(sql, values, (err, data) => {
+    db.query(sql, (err, data) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         } else {
-            res.status(201).json(data);
+            res.status(200).json(data);
         }
     });
 });
@@ -101,31 +92,29 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
     const id = req.params.id;
-    const {
-        fk_solicId
-    } = req.body
+    const { fk_solicId } = req.body;
 
     if (!fk_solicId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
-        })
+        });
     }
 
-    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoproduto WHERE solicId = ?";
+    const validationSolicitacao = "SELECT COUNT(*) AS count FROM solicitacaoProd WHERE solicId = ?";
     db.query(validationSolicitacao, [fk_solicId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        const solicitaçãoExists = result[0].count > 0;
-        if (!solicitaçãoExists) {
+        const solicitacaoExists = result[0].count > 0;
+        if (!solicitacaoExists) {
             return res.status(400).json({
                 message: 'Solicitação inválida'
             });
         }
 
-        const sql = "UPDATE controle SET fk_solicId = ? WHERE controleId = ? ";
+        const sql = "UPDATE controle SET fk_solicId = ? WHERE controleId = ?";
         const values = [fk_solicId, id];
 
         db.query(sql, values, (err, data) => {
@@ -134,7 +123,7 @@ router.put('/:id', (req, res) => {
                     error: err.message
                 });
             }
-            if (data.length === 0) {
+            if (data.affectedRows === 0) {
                 return res.status(404).json({
                     message: 'Controle não encontrado'
                 });
@@ -157,7 +146,7 @@ router.delete('/:id', (req, res) => {
                 error: err.message
             });
         }
-        if (data.length === 0) {
+        if (data.affectedRows === 0) {
             return res.status(404).json({
                 message: 'Controle não encontrado'
             });
