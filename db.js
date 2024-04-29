@@ -6,9 +6,9 @@ require('dotenv')
 function createDBConnection() {
     const db = mysql.createConnection({
         host: process.env.HOST_DATABASE || "localhost",
-        user: 'root',
-        password: '',
-        database: process.env.DATABASE || 'signup'
+        user: process.env.MYSQL_USER || 'root',
+        password: process.env.MYSQL_PASSWORD || '',
+        database: process.env.MYSQL_DATABASE || 'signup'
     });
     
     return db;

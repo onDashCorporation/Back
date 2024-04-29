@@ -3,17 +3,15 @@ FROM node:21-alpine
 
 WORKDIR /backend
 
-ENV PORT=5000
-
-ENV HOST_DATABASE="container-acai-database"
-ENV DATABASE="onDash"
-
+# copia as dependecias do projeto
 COPY package*.json .
 
+
+# instala os pacotes necessários
 RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE ${PORT}
 
 CMD ["npm","start"]

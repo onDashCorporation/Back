@@ -1,10 +1,12 @@
 FROM mysql:8.3.0
 
-# configura que não é necessário o uso da senha para acessar o root
-ENV MYSQL_ALLOW_EMPTY_PASSWORD=true
-
 # copia o script para a pasta de inicialização de banco de dados do container
 COPY ./signup.sql /docker-entrypoint-initdb.d/
+
+# ENV MYSQL_PASSWORD="lzmkamxlkndsj"
+# ENV MYSQL_USER="admin_qualquer"
+# ENV MYSQL_DATABASE="onDash"
+# ENV MYSQL_ROOT_PASSWORD="szxwnfcerbvjgnjktynhtjrnwei"
 
 # expoe a porta padrão do mysql
 EXPOSE 3306

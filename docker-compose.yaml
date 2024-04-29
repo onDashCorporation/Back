@@ -5,19 +5,33 @@ services:
     container_name: container-acai-backend
     build: ./
     ports:
-      - "5000:5000"
+      - "5000:3000"
     networks:
       - backend-network
     restart: "always"
     depends_on:
       - database
+    # healthcheck:
+    #   test: [ "CMD", "curl", "-f", "http://localhost:3306" ]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 20s
+    env_file: 
+      - path: ./.env
+        required: true
+      - path: ./database/.env
+        required: true
   database:
     container_name: container-acai-database
-    build: ./database 
+    build: ./database
     networks:
       - backend-network
     restart: "always"
-networks: 
+    env_file: 
+      - path: ./database/.env
+        required: true
+networks:
   backend-network:
 volumes:
   data:
