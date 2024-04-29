@@ -19,7 +19,7 @@ create table categoria(
 
 create table departamento(
 	depId int primary key not null,
-    nome_depart varchar(100)
+    nome_depart varchar(100) not null
 );
 
 -- CRIAÇÃO DAS TABELAS FRACAS/DEPENDENTES --
@@ -40,7 +40,7 @@ create table usuarios(
 -- TABELAS PARA CADASTRAR ITEMS E ADICIONAR/TIRAR --
 create table cadastroItem(
 	cadItemId int primary key not null,
-    foto blob,
+    foto blob not null, 
     nome_item varchar(150) not null,
     qtdMin int default(0) not null,
     fk_categoriaId int not null,
@@ -51,8 +51,8 @@ create table cadastroItem(
 create table qtdItem(
 	qtdItemId int primary key not null,
     fk_cadItemId int not null,
-    qtde int,
-    valorItem decimal(8,2),
+    qtde int not null,
+    valorItem decimal(8,2) not null,
     
     FOREIGN KEY(fk_cadItemId) references cadastroItem(cadItemId)
 );
@@ -60,7 +60,7 @@ create table qtdItem(
 -- TABELA ESTOQUE, É UMA VIEW
 create table estoque(
 	estoqueId int primary key not null,
-    qtdeTotal int,
+    qtdeTotal int not null,
     fk_qtdItemId int not null,
 
     
@@ -70,7 +70,7 @@ create table estoque(
 -- TABELA PARA REALIZAR A SOLICITACAO DE UM ITEM
 create table solicitacaoProd(
 	solicId int not null primary key,
-    data date,
+    data date not null,
     qtdSaida int,
     qtdEntrada int,
     valor_entrada decimal (8,2),
