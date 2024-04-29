@@ -83,7 +83,7 @@ router.post('/', (req, res) => {
                 usuNome,
                 email,
                 hash,
-                fk_depId
+                3
                 
             ]
 
