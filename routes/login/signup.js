@@ -41,7 +41,7 @@ const upload = multer({
 router.post('/upload', upload.single('foto'), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
-    const sql = "UPDATE cadastroItem SET foto=?"
+    const sql = "UPDATE usuarios SET foto_usu=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
             Message: "Error"

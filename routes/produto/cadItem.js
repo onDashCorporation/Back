@@ -110,10 +110,11 @@ router.post('/', upload.single('foto'), (req, res) => {
             });
         }
 
-        const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
+        const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
         // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
         db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
             if (err) {
+                co
                 return res.status(500).json({
                     error: err.message
                 });
@@ -124,14 +125,15 @@ router.post('/', upload.single('foto'), (req, res) => {
                 });
             }
 
-            const categoriaId = result[0].categoriaId;
+            const fk_categoriaId = result[0].cateId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
             // const values = [foto.filename, nome, qtdMinima, fk_categoriaId];
-            const values = [foto.filename, nome_item, qtdMin, categoriaId];
+            const values = [foto.filename, nome_item, qtdMin, fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
+                    console.log(err)
                     return res.status(500).json({
                         error: err.message
                     });
@@ -225,7 +227,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
         });
     }
 
-    const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
+    const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
     // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
     db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
         if (err) {
@@ -239,10 +241,10 @@ router.put('/:id', upload.single('foto'), (req, res) => {
             });
         }
 
-        const categoriaId = result[0].categoriaId;
+        const fk_categoriaId = result[0].cateId;
 
         const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
-        const values = [foto.filename, nome_item, qtdMin, categoriaId, id];
+        const values = [foto.filename, nome_item, qtdMin, fk_categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
