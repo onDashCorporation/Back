@@ -3,7 +3,7 @@
 Modelo de inserção de dados para teste no postman: 
 
 {
-    "name": "microfone"
+    "nome_categoria": "microfone"
 }
 */
 
