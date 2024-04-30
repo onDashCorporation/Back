@@ -44,7 +44,7 @@ router.post('/', (req, res) => {
                 return res.status(500).json({ error: 'Erro ao criptografar senha' });
             }
 
-            const updateSql = "UPDATE usuarios SET senha = ? WHERE usuarioId = ?";
+            const updateSql = "UPDATE usuarios SET senha = ? WHERE usuId = ?";
             db.query(updateSql, [hash, userId], (err, result) => {
             // db.query(updateSql, [hash, userId], (err, result) => {
                 if (err) {

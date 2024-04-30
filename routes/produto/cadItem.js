@@ -110,7 +110,7 @@ router.post('/', upload.single('foto'), (req, res) => {
             });
         }
 
-        const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
+        const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
         // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
         db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
             if (err) {
@@ -225,7 +225,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
         });
     }
 
-    const validationCategoria = "SELECT categoriaId FROM categoria WHERE categoriaId = ?";
+    const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
     // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
     db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
         if (err) {

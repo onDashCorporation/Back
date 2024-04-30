@@ -17,13 +17,13 @@ dotenv.config()
 
 app.use(express.urlencoded({extended: true}))
 
-// db.connect((err) => {
-//     if (err) {
-//         console.error('Erro ao conectar ao banco de dados:', err.message);
-//         return;
-//     }
-//     console.log('Conexão com o banco de dados estabelecida.');
-// });
+db.connect((err) => {
+    if (err) {
+        console.error('Erro ao conectar ao banco de dados:', err.message);
+        return;
+    }
+    console.log('Conexão com o banco de dados estabelecida.');
+});
 
 // db.query("SELECT id, name, email, password FROM login", function (err, rows, fields) {
 //     if (!err) {
