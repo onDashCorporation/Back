@@ -7,6 +7,7 @@ Modelo para testes no postman:
   "email":"Teste@gmail.com",
   "senha":"Signup1234@",
   "fk_cargoId": 21
+  "fk_depId": 2
 }
 */
 
@@ -38,11 +39,11 @@ const upload = multer({
     storage: storage
 })
 
-router.post('/upload', upload.single('foto'), (req, res) => {
+router.post('/upload', upload.single('foto_usu'), (req, res) => {
     console.log(req.file)
-    const foto = req.file.filename
-    const sql = "UPDATE cadastroItem SET foto=?"
-    db.query(sql, [foto], (err, result) => {
+    const foto_usu = req.file.filename
+    const sql = "UPDATE cadastroItem SET foto_usu=?"
+    db.query(sql, [foto_usu], (err, result) => {
         if (err) return res.json({
             Message: "Error"
         })
@@ -55,7 +56,7 @@ router.post('/upload', upload.single('foto'), (req, res) => {
 // const inserir = require('../../Querys/login/inserirDados')
 // const validar = require('../../Querys/login/validarEmail')
 
-router.post('/', upload.single('foto'), (req, res) => {
+router.post('/', upload.single('foto_usu'), (req, res) => {
     const {
         usuNome,
         email,
@@ -63,9 +64,9 @@ router.post('/', upload.single('foto'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto = req.file
+    const foto_usu = req.file
 
-    if (!usuNome || !email || !senha || !fk_depId || !foto) {
+    if (!usuNome || !email || !senha || !fk_depId || !foto_usu) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         });
@@ -146,7 +147,7 @@ router.post('/', upload.single('foto'), (req, res) => {
                 });
             }
 
-            const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto`) VALUES (?, ?, ?, ?, ?, ?)"
+            const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto_usu`) VALUES (?, ?, ?, ?, ?, ?)"
 
             bcrypt.hash(req.body.senha.toString(), salt, (err, hash) => {
                 if (err) return res.json({
@@ -156,9 +157,9 @@ router.post('/', upload.single('foto'), (req, res) => {
                     usuNome,
                     email,
                     hash,
-                    3,
+                    fk_cargoId,
                     fk_depId,
-                    foto.filename
+                    foto_usu.filename
                 ]
 
                 db.query(sql, values, (err, result) => {
@@ -176,7 +177,7 @@ router.post('/', upload.single('foto'), (req, res) => {
     })
 })
 
-router.put('/:id', upload.single('foto'), (req, res) => {
+router.put('/:id', upload.single('foto_usu'), (req, res) => {
     const id = req.params.id;
     const {
         usuNome,
@@ -184,9 +185,9 @@ router.put('/:id', upload.single('foto'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto = req.file
+    const foto_usu = req.file
 
-    if (!usuNome || !email || !fk_depId || !foto) {
+    if (!usuNome || !email || !fk_depId || !foto_usu) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         });
@@ -233,7 +234,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
                 });
             }
 
-            const sql = "UPDATE usuarios SET usuNome =? , email =?, fk_cargoId =?, fk_depId =?, foto=? WHERE usuId =?"
+            const sql = "UPDATE usuarios SET usuNome =? , email =?, fk_cargoId =?, fk_depId =?, foto_usu=? WHERE usuId =?"
 
             const values = [
                 usuNome,
@@ -241,7 +242,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
                 hash,
                 fk_cargoId,
                 fk_depId,
-                foto.filename,
+                foto_usu.filename,
                 id
             ]
 
