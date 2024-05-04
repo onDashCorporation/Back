@@ -64,9 +64,11 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto_usu = req.file
 
-    if (!usuNome || !email || !senha || !fk_depId || !foto_usu) {
+    const foto_padrao = '../img/dft_foto.jpg'
+    const foto_usu = req.file ? req.file.filename : foto_padrao
+
+    if (!usuNome || !email || !senha || !fk_depId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         });
@@ -133,7 +135,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
             });
         }
 
-        const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE departamentoId = ?";
+        const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE depId = ?";
         db.query(validationDepartamento, [new_fk_depId], (err, result) => {
             if (err) {
                 return res.status(500).json({
@@ -159,7 +161,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     hash,
                     fk_cargoId,
                     fk_depId,
-                    foto_usu.filename
+                    foto_usu
                 ]
 
                 db.query(sql, values, (err, result) => {
@@ -185,7 +187,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto_usu = req.file
+    const foto_usu = req.file ? req.file.filename : '../img/dft_foto.jpg'
 
     if (!usuNome || !email || !fk_depId || !foto_usu) {
         return res.status(400).json({
@@ -220,7 +222,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
             });
         }
 
-        const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE departamentoId = ?";
+        const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE depId = ?";
         db.query(validationDepartamento, [new_fk_depId], (err, result) => {
             if (err) {
                 return res.status(500).json({
@@ -242,8 +244,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
                 hash,
                 fk_cargoId,
                 fk_depId,
-                foto_usu.filename,
-                id
+                foto_usu.filename
             ]
 
             db.query(sql, values, (err, result) => {
