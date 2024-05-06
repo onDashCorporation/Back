@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
+const fetch = require("node-fetch");
+
 // const {
 //   dadosReais,
 //   dadosMockados,
@@ -25,17 +27,14 @@ const gerarExcel = require("../../controller/excel");
 //   }
 // });
 
-fetch("http://localhost:3000/")
-    .then(function(response){
-        return response.json();
-    })
-    .then(function(data){
-        console.log(data);
-        // const{
-        //   estoque, 
-        //   controle
-        // } = require(data)
-    })
+// fetch("http://localhost:3000/")
+//     .then(function(response){
+//         return response.json();
+//     })
+//     .then(function(data){
+//         console.log(data);
+    
+//     })
 
 
 router.get("/:tabela", async (req, res) => {
@@ -51,9 +50,13 @@ router.get("/:tabela", async (req, res) => {
     //   case "dadosMockados":
     //     listaDados = dadosMockados;
       case "estoque":
+        const responseEstoque = await fetch("http://localhost:3000/estoque")
+        listaDados = await responseEstoque.json();
       break;
       
       case "controle":
+        const responseControle = await fetch("http://localhost:3000/estoque")
+        listaDados = await responseControle.json();
       break;
 
       default:
