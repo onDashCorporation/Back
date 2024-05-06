@@ -62,7 +62,7 @@ router.post('/', upload.single('foto'), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file.filename
 
     if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
@@ -191,7 +191,8 @@ router.put('/:id', upload.single('foto'), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+
+    const foto = req.file ? req.file.filename : '../img/No_Image_Available.jpg'
 
     if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
