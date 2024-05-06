@@ -12,6 +12,7 @@ Descrição... API - Back-End
 - [x] `npm i --save multer`
 - [x] `npm i --save path`
 - [x] `npm install exceljs`
+- [x] `npm install node-fetch`
 
 
 ## 2. Video base
