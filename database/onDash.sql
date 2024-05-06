@@ -152,7 +152,7 @@ CREATE TRIGGER `calcPrecoMedio` AFTER INSERT ON `solicitacaoprod` FOR EACH ROW B
 	-- atualizar os preços na tabela de cadastro de item
     UPDATE qtdItem
     SET valor = ((qtde * valorItem) + (qtdEntrada * valor_entrada)) / qtde + qtdEntrada 
-    WHERE qtdItem_id = fk_qtdItem_id;
+    WHERE qtdItemId = fk_qtdItemId;
 END
 $$
 DELIMITER ;
