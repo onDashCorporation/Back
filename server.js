@@ -49,7 +49,7 @@ const resetPasswordRoutes = require('./routes/login/resetPassword');
 app.use('/reset-password', resetPasswordRoutes);
 
 const cadItemRoutes = require('./routes/produto/cadItem'); 
-app.use('/item', cadItemRoutes);
+app.use('/cadItem', cadItemRoutes);
 
 const categoriaRoutes = require('./routes/produto/categoria'); 
 app.use('/categoria', categoriaRoutes);
