@@ -113,7 +113,7 @@ router.put('/:id', (req, res) => {
     }
     const departamentoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome.match(departamentoPattern)) {
+    if (!nome_depart.match(departamentoPattern)) {
         return res.status(400).json({
             message: 'O nome da departamento deve ter apenas a primeira letra da sentença maiuscula'
         })

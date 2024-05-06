@@ -9,7 +9,7 @@ Modelo para testes no postman:
   "qtd": 50,
   "preco": 550,
   "fk_tipoMoviId": 2,
-  "fk_usuId": 2,
+  "fk_usuarioId": 2,
 }
 */
 
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
     qtdEntrada,
     qtdSaida,
     fk_tipoMoviId,
-    fk_usuId,
+    fk_usuarioId,
     fk_qtdItemId,
     fk_cadItemId,
     status,
@@ -47,7 +47,7 @@ router.post("/", async (req, res) => {
 
   // let defaultStatus = "novo";
 
-  if (!fk_usuId || !fk_qtdItemId || !fk_cadItemId) {
+  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
     return res.status(400).json({
       message: 'Todos os campos são obrigatórios!'
     })
@@ -119,27 +119,27 @@ router.post("/", async (req, res) => {
     fk_tipoMoviId = 2
   }
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
-  const new_fk_usuId = parseInt(fk_usuId)
+  const new_fk_usuarioId = parseInt(fk_usuarioId)
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
   const new_fk_cadItemId = parseInt(fk_cadItemId)
 
   // console.log(typeof new_fk_cadItemId)
   // console.log(typeof new_fk_tipoMoviId)
-  // console.log(typeof new_fk_usuId)
+  // console.log(typeof new_fk_usuarioId)
   // console.log(typeof new_fk_cadItemId)
   // console.log(new_fk_cadItemId)
   // console.log(new_fk_tipoMoviId)
-  // console.log("usuario", new_fk_usuId)
+  // console.log("usuario", new_fk_usuarioId)
   // console.log(new_fk_cadItemId)
 
-  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
+  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
     return res.status(400).json({
       message: 'Insira os IDs como um número inteiro'
     });
   }
 
   const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
-  db.query(validationUsuario, [new_fk_usuId], (err, result) => {
+  db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
     if (err) {
       return res.status(500).json({
         error: err.message
@@ -186,14 +186,14 @@ router.post("/", async (req, res) => {
           });
         }
 
-        const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
         const values = [
           today,
           qtdEntrada,
           qtdSaida,
           new_fk_tipoMoviId,
-          new_fk_usuId,
+          new_fk_usuarioId,
           new_fk_qtdItemId,
           new_fk_cadItemId,
           status,
@@ -218,8 +218,8 @@ router.post("/", async (req, res) => {
 
 
 router.get('/', (req, res) => {
-  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd";
-  const values = [req.body.solicId, req.body.data, req.body.qtdEntrada, req.body.qtdSaida, req.body.fk_tipoMoviId, req.body.fk_usuId, req.body.fk_qtdItemId, req.body.valor_entrada];
+  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd";
+  const values = [req.body.solicId, req.body.data, req.body.qtdEntrada, req.body.qtdSaida, req.body.fk_tipoMoviId, req.body.fk_usuarioId, req.body.fk_qtdItemId, req.body.valor_entrada];
 
   db.query(sql, values, (err, data) => {
     if (err) {
@@ -234,7 +234,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const id = req.params.id;
-  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
+  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
   const values = [id];
 
   db.query(sql, values, (err, data) => {
@@ -258,7 +258,7 @@ router.put('/:id', (req, res) => {
     qtdEntrada,
     qtdSaida,
     fk_tipoMoviId,
-    fk_usuId,
+    fk_usuarioId,
     fk_qtdItemId,
     fk_cadItemId,
     status,
@@ -267,7 +267,7 @@ router.put('/:id', (req, res) => {
 
   console.log(status)
 
-  if (!fk_usuId || !fk_qtdItemId || !fk_cadItemId) {
+  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
     return res.status(400).json({
       message: 'Todos os campos são obrigatórios!'
     })
@@ -307,27 +307,27 @@ router.put('/:id', (req, res) => {
     fk_tipoMoviId = 2
   }
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
-  const new_fk_usuId = parseInt(fk_usuId)
+  const new_fk_usuarioId = parseInt(fk_usuarioId)
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
   const new_fk_cadItemId = parseInt(fk_cadItemId)
 
   // console.log(typeof new_fk_cadItemId)
   // console.log(typeof new_fk_tipoMoviId)
-  // console.log(typeof new_fk_usuId)
+  // console.log(typeof new_fk_usuarioId)
   // console.log(typeof new_fk_cadItemId)
   // console.log(new_fk_cadItemId)
   // console.log(new_fk_tipoMoviId)
-  // console.log("usuario", new_fk_usuId)
+  // console.log("usuario", new_fk_usuarioId)
   // console.log(new_fk_cadItemId)
 
-  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
+  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
     return res.status(400).json({
       message: 'Insira os IDs como um número inteiro'
     });
   }
 
   const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
-  db.query(validationUsuario, [new_fk_usuId], (err, result) => {
+  db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
     if (err) {
       return res.status(500).json({
         error: err.message
@@ -373,13 +373,13 @@ router.put('/:id', (req, res) => {
           });
         }
 
-        const sql = "UPDATE solicitacaoProd SET data = ?, qtdEntrada = ?, qtdSaida = ?, fk_tipoMoviId = ?, fk_usuId = ?, fk_qtdItemId = ?, status =?, valor_entrada = ? WHERE solicId = ?";
+        const sql = "UPDATE solicitacaoProd SET data = ?, qtdEntrada = ?, qtdSaida = ?, fk_tipoMoviId = ?, fk_usuarioId = ?, fk_qtdItemId = ?, status =?, valor_entrada = ? WHERE solicId = ?";
         const values = [
           today, 
           qtdEntrada, 
           qtdSaida, 
           new_fk_tipoMoviId, 
-          new_fk_usuId, 
+          new_fk_usuarioId, 
           new_fk_qtdItemId, 
           status,
           valor_entrada, 

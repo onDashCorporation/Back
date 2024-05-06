@@ -11,6 +11,8 @@ Descrição... API - Back-End
 - [x] `npm i nodemailer`
 - [x] `npm i --save multer`
 - [x] `npm i --save path`
+- [x] `npm install exceljs`
+
 
 ## 2. Video base
 - [x] https://www.youtube.com/watch?v=0i86B4mU-vw

@@ -75,6 +75,9 @@ app.use('/cargo', cargoRoutes);
 const departamentoRoutes = require('./routes/autenticacao/departamento'); 
 app.use('/departamento', departamentoRoutes);
 
+const excelRoutes = require('./routes/excel/excel'); 
+app.use('/excel', excelRoutes);
+
 const port = process.env.PORT || 8081
 
 app.listen(port, ()=> {

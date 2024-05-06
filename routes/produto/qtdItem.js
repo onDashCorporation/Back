@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
             message: 'Insira o id do item como um número inteiro'
         });
     }
-    if (!Number.is(fk_cadItemId)) {
+    if (!Number.parseFloat(fk_cadItemId)) {
         return res.status(400).json({
             message: 'Insira o id do item como um número inteiro'
         });
@@ -52,7 +52,7 @@ router.post('/', (req, res) => {
             message: 'Insira um valor válido para quantidade'
         })
     }
-    if (!Number.isFloat(valorItem)) {
+    if (!Number.parseFloat(valorItem)) {
         return res.status(400).json({
             message: 'O valor do item deve entrar como Float'
         });

@@ -15,9 +15,9 @@ const createDBConnection = require('../../db')
 const db = createDBConnection() 
 
 router.post('/', (req, res) => {
-    const{tipo_movimentacao, tmId} = req.body
+    const{tipo, tmId} = req.body
 
-    if(!tipo_movimentacao){
+    if(!tipo){
         return res.status(400).json({message: 'Todos os campos são obrigatórios!'})
     }
     const tipoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
@@ -25,12 +25,12 @@ router.post('/', (req, res) => {
     if(tmId > 2 || tmId < 1){
         return res.status(400).json({ message: 'Tipo de movimentação inválido' })
     }
-    if (!tipo_movimentacao.match(tipoPattern)) {
+    if (!tipo.match(tipoPattern)) {
         return res.status(400).json({ message: 'O tipo de movimentação deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
     const validationTipo = "SELECT COUNT(*) AS count FROM tipomovi WHERE tipo = ?";
-    db.query(validationTipo, [tipo_movimentacao], (err, result) => {
+    db.query(validationTipo, [tipo], (err, result) => {
         if (err) {
              return res.status(500).json({ error: err.message });
          }
@@ -40,8 +40,8 @@ router.post('/', (req, res) => {
             }
 
 
-        const sql = "INSERT INTO tipomovi (`tipo_movimentacao`) VALUES (?)";
-        const values = [tipo_movimentacao];
+        const sql = "INSERT INTO tipomovi (`tipo`) VALUES (?)";
+        const values = [tipo];
     
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -55,8 +55,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT tmId, tipo_movimentacao FROM tipomovi";
-    const values = [req.body.tmId, req.body.tipo_movimentacao];
+    const sql = "SELECT tmId, tipo FROM tipomovi";
+    const values = [req.body.tmId, req.body.tipo];
     
         db.query(sql, values, (err, data) => {
         // db.query(dadosCategoria, values, (err, data) => {
@@ -71,7 +71,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "SELECT tmId, tipo_movimentacao FROM tipomovi WHERE tmId = ?";
+        const sql = "SELECT tmId, tipo FROM tipomovi WHERE tmId = ?";
         const values = [id];
      
         db.query(sql, values, (err, data) => {
@@ -87,19 +87,19 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
     const id = req.params.id;
-    const{tipo_movimentacao} = req.body
+    const{tipo} = req.body
 
-    if(!tipo_movimentacao){
+    if(!tipo){
         return res.status(400).json({message: 'Todos os campos são obrigatórios!'})
     }
     const tipoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!tipo_movimentacao.match(tipoPattern)) {
+    if (!tipo.match(tipoPattern)) {
         return res.status(400).json({ message: 'O tipo de movimentação deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
-    const sql = "UPDATE tipomovi SET tipo_movimentacao = ? WHERE tmId = ?";
-    const values = [tipo_movimentacao, id];
+    const sql = "UPDATE tipomovi SET tipo = ? WHERE tmId = ?";
+    const values = [tipo, id];
      
         db.query(sql, values, (err, data) => {
             if (err) {
