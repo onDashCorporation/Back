@@ -1,10 +1,42 @@
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
-const {
-  dadosReais,
-  dadosMockados,
-  dadosMockados2,
-} = require("../../database/dadoMockado");
+// const {
+//   dadosReais,
+//   dadosMockados,
+//   dadosMockados2,
+// } = require("../../database/dadoMockado");
+
+// const URL = "http://localhost:3000/"
+// URL = await (await fetch("http://localhost:3000/")).json();
+// const{
+//   estoque, 
+//   controle
+// } = require(URL)
+
+// const{
+//   estoque, 
+//   controle
+// } = require($.getJSON("http://localhost:3000/"))
+
+// $.getJSON("http://destiny.trade/JSON/sortieRewards_f.json", function(result){
+//   const{
+//     estoque, 
+//     controle
+//   }
+// });
+
+fetch("http://localhost:3000/")
+    .then(function(response){
+        return response.json();
+    })
+    .then(function(data){
+        console.log(data);
+        // const{
+        //   estoque, 
+        //   controle
+        // } = require(data)
+    })
+
 
 router.get("/:tabela", async (req, res) => {
   try {
@@ -12,14 +44,18 @@ router.get("/:tabela", async (req, res) => {
     let listaDados = [];
 
     switch (req.params.tabela) {
-      case "dadosReais":
-        listaDados = dadosReais;
+    //   case "dadosReais":
+    //     listaDados = dadosReais;
 
-        break;
-      case "dadosMockados":
-        listaDados = dadosMockados;
+    //     break;
+    //   case "dadosMockados":
+    //     listaDados = dadosMockados;
+      case "estoque":
+      break;
+      
+      case "controle":
+      break;
 
-        break;
       default:
         break;
     }
