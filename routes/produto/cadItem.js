@@ -19,15 +19,12 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
-//  const verifyjwt = require('../../middleware/jwt_autorization')
+
 
 const multer = require('multer')
 const path = require('path')
 
 const storage = multer.diskStorage({
-    // destination: (req, file, cb) => {
-    //     cb(null,'')
-    // },
     filename: (req, file, cb) => {
         cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
     }
@@ -51,9 +48,7 @@ router.post('/upload', upload.single('foto'), (req, res) => {
     })
 })
 
-// router.get('/', verifyjwt, (req,res) => {
-//     return res.json({Status: "Sucesso", usuarioId: req.usuarioId})
-// })
+
 
 router.post('/', upload.single('foto'), (req, res) => {
     const {
@@ -111,7 +106,7 @@ router.post('/', upload.single('foto'), (req, res) => {
         }
 
         const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
-        // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+
         db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
             if (err) {
                 return res.status(500).json({
@@ -127,7 +122,6 @@ router.post('/', upload.single('foto'), (req, res) => {
             const fk_categoriaId = result[0].new_fk_categoriaId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
-            // const values = [foto.filename, nome, qtdMinima, fk_categoriaId];
             const values = [foto.filename, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
@@ -140,7 +134,6 @@ router.post('/', upload.single('foto'), (req, res) => {
                         message: 'Dados inseridos no sistema com sucesso'
                     })
                 }
-                // res.status(201).json(data);
             });
         });
     });
@@ -158,7 +151,6 @@ router.get('/', (req, res) => {
         } else {
             res.status(201).json(data);
         }
-        // res.status(201).json(data);
     });
 });
 
@@ -215,9 +207,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
     }
     console.log(typeof fk_categoriaId)
 
-    const new_fk_categoriaId = parseInt(fk_categoriaId)
-    // console.log(typeof new_fk_categoriaId) 
-    // console.log(new_fk_categoriaId) 
+    const new_fk_categoriaId = parseInt(fk_categoriaId) 
 
     if (!Number.isInteger(new_fk_categoriaId)) {
         return res.status(400).json({
@@ -226,7 +216,6 @@ router.put('/:id', upload.single('foto'), (req, res) => {
     }
 
     const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
-    // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
     db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
         if (err) {
             return res.status(500).json({

@@ -1,40 +1,15 @@
+/* 
+URL base do Excel: 
+    http://localhost:3000/excel/estoque
+    http://localhost:3000/excel/controle
+
+*/
+
+
+
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
-const fetch = require("node-fetch");
-
-// const {
-//   dadosReais,
-//   dadosMockados,
-//   dadosMockados2,
-// } = require("../../database/dadoMockado");
-
-// const URL = "http://localhost:3000/"
-// URL = await (await fetch("http://localhost:3000/")).json();
-// const{
-//   estoque, 
-//   controle
-// } = require(URL)
-
-// const{
-//   estoque, 
-//   controle
-// } = require($.getJSON("http://localhost:3000/"))
-
-// $.getJSON("http://destiny.trade/JSON/sortieRewards_f.json", function(result){
-//   const{
-//     estoque, 
-//     controle
-//   }
-// });
-
-// fetch("http://localhost:3000/")
-//     .then(function(response){
-//         return response.json();
-//     })
-//     .then(function(data){
-//         console.log(data);
-    
-//     })
+const axios = require("axios");
 
 
 router.get("/:tabela", async (req, res) => {
@@ -43,20 +18,17 @@ router.get("/:tabela", async (req, res) => {
     let listaDados = [];
 
     switch (req.params.tabela) {
-    //   case "dadosReais":
-    //     listaDados = dadosReais;
 
-    //     break;
-    //   case "dadosMockados":
-    //     listaDados = dadosMockados;
       case "estoque":
-        const responseEstoque = await fetch("http://localhost:3000/estoque")
-        listaDados = await responseEstoque.json();
+        const responseEstoque = await axios.get("http://localhost:3000/estoque");
+        listaDados = responseEstoque.data; 
+      
       break;
       
       case "controle":
-        const responseControle = await fetch("http://localhost:3000/estoque")
-        listaDados = await responseControle.json();
+        const responseControle = await axios.get("http://localhost:3000/controle");
+        listaDados = responseControle.data;
+
       break;
 
       default:

@@ -59,7 +59,6 @@ router.get('/', (req, res) => {
     const values = [req.body.tmId, req.body.tipo];
     
         db.query(sql, values, (err, data) => {
-        // db.query(dadosCategoria, values, (err, data) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
