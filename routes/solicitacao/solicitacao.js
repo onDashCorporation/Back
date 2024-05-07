@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
     status,
     valor_entrada
   } = req.body;
- 
+
 
   if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
     return res.status(400).json({
@@ -53,10 +53,12 @@ router.post("/", async (req, res) => {
   const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
   if (!status.match(statusPattern)) {
-      return res.status(400).json({ message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula' })
+    return res.status(400).json({
+      message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula'
+    })
   }
- //  status possiveis: lido, novo e autorizado
-  if(status != "Lido" && status != "Autorizado" && status != "Novo"){
+  //  status possiveis: lido, novo e autorizado
+  if (status != "Lido" && status != "Autorizado" && status != "Novo") {
     return res.status(400).json({
       message: 'Status inválido'
     })
@@ -141,56 +143,56 @@ router.post("/", async (req, res) => {
             message: "Item invalido (cad)"
           });
         }
-      const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ? AND fk_qtdItemId =?";
-      db.query(validationProduto, [new_fk_cadItemId, new_fk_qtdItemId], (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            error: err.message
-          });
-        }
-        const ProdutoExists = result[0].count > 0;
-        if (!ProdutoExists) {
-          return res.status(400).json({
-            message: "Item invalido - O cadastro de item não corresponde a quantidade"
-          });
-        }
-
-        const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
-        if (validationValorEntrada) {
-          return res.status(400).json({
-            message: "Valor Inválido"
-          });
-        }
-
-        const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-        const values = [
-          today,
-          qtdEntrada,
-          qtdSaida,
-          new_fk_tipoMoviId,
-          new_fk_usuarioId,
-          new_fk_qtdItemId,
-          new_fk_cadItemId,
-          status,
-          valor_entrada
-        ];
-
-        db.query(sql, values, (err, data) => {
+        const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ? AND qtdItemId = ?";
+        db.query(validationProduto, [new_fk_cadItemId, new_fk_qtdItemId], (err, result) => {
           if (err) {
             return res.status(500).json({
               error: err.message
             });
-          } else {
-            res.status(201).json({
-              message: 'Dados inseridos no sistema com sucesso'
-            })
           }
+          const ProdutoExists = result[0].count > 0;
+          if (!ProdutoExists) {
+            return res.status(400).json({
+              message: "Item invalido - O cadastro de item não corresponde a quantidade"
+            });
+          }
+
+          const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
+          if (validationValorEntrada) {
+            return res.status(400).json({
+              message: "Valor Inválido"
+            });
+          }
+
+          const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+          const values = [
+            today,
+            qtdEntrada,
+            qtdSaida,
+            new_fk_tipoMoviId,
+            new_fk_usuarioId,
+            new_fk_qtdItemId,
+            new_fk_cadItemId,
+            status,
+            valor_entrada
+          ];
+
+          db.query(sql, values, (err, data) => {
+            if (err) {
+              return res.status(500).json({
+                error: err.message
+              });
+            } else {
+              res.status(201).json({
+                message: 'Dados inseridos no sistema com sucesso'
+              })
+            }
+          });
         });
-      });
+      })
     })
   })
-})
 })
 
 
@@ -344,15 +346,16 @@ router.put('/:id', (req, res) => {
 
         const sql = "UPDATE solicitacaoProd SET data = ?, qtdEntrada = ?, qtdSaida = ?, fk_tipoMoviId = ?, fk_usuarioId = ?, fk_qtdItemId = ?, status =?, valor_entrada = ? WHERE solicId = ?";
         const values = [
-          today, 
-          qtdEntrada, 
-          qtdSaida, 
-          new_fk_tipoMoviId, 
-          new_fk_usuarioId, 
-          new_fk_qtdItemId, 
+          today,
+          qtdEntrada,
+          qtdSaida,
+          new_fk_tipoMoviId,
+          new_fk_usuarioId,
+          new_fk_qtdItemId,
           status,
-          valor_entrada, 
-          id];
+          valor_entrada,
+          id
+        ];
 
         db.query(sql, values, (err, data) => {
           if (err) {
