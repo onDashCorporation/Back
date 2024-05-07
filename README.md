@@ -12,7 +12,7 @@ Descrição... API - Back-End
 - [x] `npm i --save multer`
 - [x] `npm i --save path`
 - [x] `npm install exceljs`
-- [x] `npm install node-fetch`
+- [x] `npm install axios`
 
 
 ## 2. Video base
@@ -167,3 +167,15 @@ Descrição... API - Back-End
 ### 3.11.3 Para verificar os tipo de movimentação cadastrados e para adicionar um novo cadastro
 - [x] {{URL}}/movimentacao
 - [x] http://localhost:3000/movimentacao/
+  
+## 3.12 Baixar relatórios do Excel
+
+### 3.12.1 Para baixar relatórios da View Estoque
+- [x] {{URL}}/excel/estoque
+- [x] http://localhost:3000/excel/estoque
+  
+### 3.12.2 Para baixar relatórios da View Controle
+- [x] {{URL}}/excel/controle
+- [x] http://localhost:3000/excel/controle
+  
+
