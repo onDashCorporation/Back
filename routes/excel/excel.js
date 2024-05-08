@@ -6,7 +6,6 @@ URL base do Excel:
 */
 
 
-
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
 const axios = require("axios");
@@ -52,8 +51,26 @@ router.get("/:tabela", async (req, res) => {
       break;
       
       case "controle":
-        const responseControle = await axios.get("http://localhost:3000/controle");
-        listaDados = responseControle.data;
+        // const responseControle = await axios.get("http://localhost:3000/controle");
+        // listaDados = responseControle.data;
+
+        try {
+          const responseEstoque = await axios.get("http://localhost:3000/controle");
+          listaDados = responseEstoque.data.map(control => {
+            return {
+              "Solicitação": control.solicId,
+              "Data": control.data,
+              "Quantidade de Entrada": control.qtdEntrada,
+              "Quantidade de Saída": control.qtdSaida,
+              "Valor Entrada": control.valor_entrada,
+              "Status": control.status,
+              "Nome do Usuário": control.usuNome,
+              "Cargo": control.cargo_nome
+            };
+          });
+        } catch (err) {
+          console.error("Erro ao obter dados de estoque:", err);
+        }
 
       break;
 
