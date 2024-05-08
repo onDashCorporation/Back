@@ -90,9 +90,9 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.get('/mes/:mes', (req, res) => {
+router.get('/mes/:month', (req, res) => {
     const mes = parseInt(req.params.month);
-    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada FROM view_controle WHERE MONTH(data) = ?';
+    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle WHERE MONTH(data) = ?';
     const values = [mes]
 
     db.query(sql, values, (err, data) => {
@@ -100,6 +100,32 @@ router.get('/mes/:mes', (req, res) => {
             return res.status(500).json({
                 error: err.message
             })
+        }
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'Nada correspondente a este mês'
+            });
+        }
+        res.status(200).json(data);
+    })
+})
+
+router.get('/datas/:day/:month', (req, res) => {
+    const mes = parseInt(req.params.month)
+    const dia = parseInt(req.params.day);
+    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle WHERE DAY(data) = ? AND MONTH(data) = ?';
+    const values = [dia, mes]
+
+    db.query(sql, values, (err, data) => {
+        if(err){
+            return res.status(500).json({
+                error: err.message
+            })
+        }
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'Nada correspondente a esta data'
+            });
         }
         res.status(200).json(data);
     })
