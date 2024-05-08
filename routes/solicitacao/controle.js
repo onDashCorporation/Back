@@ -90,6 +90,21 @@ router.get('/:id', (req, res) => {
     });
 });
 
+router.get('/mes/:mes', (req, res) => {
+    const mes = parseInt(req.params.month);
+    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada FROM view_controle WHERE MONTH(data) = ?';
+    const values = [mes]
+
+    db.query(sql, values, (err, data) => {
+        if(err){
+            return res.status(500).json({
+                error: err.message
+            })
+        }
+        res.status(200).json(data);
+    })
+})
+
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const { fk_solicId } = req.body;
