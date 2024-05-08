@@ -1,0 +1,12 @@
+{
+    "openapi":"3.0.0",
+    "info":{
+        "title":"ACAI",
+        "description":"Teste doc",
+        "termsOfService":"http://localhost:3000/terms",
+        "contact":{
+            "email": "ondashequipe@gmail.com"
+        }
+    },
+    "version": "1.0.0"
+}

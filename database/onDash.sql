@@ -1,12 +1,9 @@
-create database onDash;
-use onDash;
-
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 07/05/2024 às 19:56
+-- Tempo de geração: 07/05/2024 às 18:49
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -37,6 +34,14 @@ CREATE TABLE `cadastroitem` (
   `qtdMin` int(11) NOT NULL DEFAULT 0,
   `fk_categoriaId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `cadastroitem`
+--
+
+INSERT INTO `cadastroitem` (`cadItemId`, `foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES
+(1, 0x666f746f5f313731353031383235353736362e6a7067, 'Teclado', 10, 2),
+(2, 0x666f746f5f313731353031383433353433312e6a7067, 'Monitor', 10, 3);
 
 -- --------------------------------------------------------
 
@@ -69,6 +74,15 @@ CREATE TABLE `categoria` (
   `nome_categoria` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `categoria`
+--
+
+INSERT INTO `categoria` (`cateId`, `nome_categoria`) VALUES
+(1, 'Periféricos'),
+(2, 'Teste'),
+(3, 'Testando');
+
 -- --------------------------------------------------------
 
 --
@@ -99,7 +113,8 @@ INSERT INTO `departamento` (`depId`, `nome_depart`) VALUES
 (2, 'Administração'),
 (3, 'Contabilidade'),
 (4, 'Logística'),
-(5, 'Rh');
+(5, 'Rh'),
+(6, 'Operário');
 
 -- --------------------------------------------------------
 
@@ -125,6 +140,14 @@ CREATE TABLE `qtditem` (
   `qtde` int(11) NOT NULL,
   `valorItem` decimal(8,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `qtditem`
+--
+
+INSERT INTO `qtditem` (`qtdItemId`, `fk_cadItemId`, `qtde`, `valorItem`) VALUES
+(1, 1, 100, 900.00),
+(2, 2, 50, 1500.00);
 
 -- --------------------------------------------------------
 
@@ -171,6 +194,14 @@ CREATE TABLE `tipomovi` (
   `tmId` int(11) NOT NULL,
   `tipo` enum('entrada','saida') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tipomovi`
+--
+
+INSERT INTO `tipomovi` (`tmId`, `tipo`) VALUES
+(1, 'entrada'),
+(2, 'saida');
 
 -- --------------------------------------------------------
 
@@ -328,13 +359,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `cadastroitem`
 --
 ALTER TABLE `cadastroitem`
-  MODIFY `cadItemId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `cadItemId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `cateId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `cateId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de tabela `departamento`
+--
+ALTER TABLE `departamento`
+  MODIFY `depId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `estoque`
@@ -346,13 +383,19 @@ ALTER TABLE `estoque`
 -- AUTO_INCREMENT de tabela `qtditem`
 --
 ALTER TABLE `qtditem`
-  MODIFY `qtdItemId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `qtdItemId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `solicitacaoprod`
 --
 ALTER TABLE `solicitacaoprod`
-  MODIFY `solicId` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `solicId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de tabela `tipomovi`
+--
+ALTER TABLE `tipomovi`
+  MODIFY `tmId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
