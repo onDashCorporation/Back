@@ -90,7 +90,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.get('/mes/:month', (req, res) => {
+router.get('datas/mes/:month', (req, res) => {
     const mes = parseInt(req.params.month);
     const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle WHERE MONTH(data) = ?';
     const values = [mes]
@@ -133,7 +133,6 @@ router.get('/datas/:day/:month', (req, res) => {
 
 router.get('/datas', (req, res) => {
     const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle ORDER BY data ASC';
-    const values = [dia, mes]
 
     db.query(sql, values, (err, data) => {
         if(err){
