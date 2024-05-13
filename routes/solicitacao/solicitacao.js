@@ -22,13 +22,6 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
-// const bodyParser = require('body-parser');
-// const app = express()
-// app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({extended: true}))
-
-// const dataAtual = new Date();
-// const today = dataAtual.getDate();
 const dataAtual = new Date();
 const today = dataAtual.toISOString().split('T')[0];
 
@@ -43,9 +36,7 @@ router.post("/", async (req, res) => {
     status,
     valor_entrada
   } = req.body;
-  // let status = req.body
 
-  // let defaultStatus = "novo";
 
   if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
     return res.status(400).json({
@@ -54,17 +45,6 @@ router.post("/", async (req, res) => {
   }
 
   if (!status) {
-    //  const new_status = "novo";
-    //  let status = new_status ;
-
-    //  const data = req.body;
-    //  console.log("Name: ", data.name);
-    // req.body.status = "novo",
-
-    //  console.log("novo", status)
-    // req.body.status = "novo"
-    // status == defaultStatus
-
     status = "Novo"
   } else {
     status = req.body.status;
@@ -73,15 +53,16 @@ router.post("/", async (req, res) => {
   const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
   if (!status.match(statusPattern)) {
-      return res.status(400).json({ message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula' })
+    return res.status(400).json({
+      message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula'
+    })
   }
- //  status possiveis: lido, novo e autorizado
-  if(status != "Lido" && status != "Autorizado" && status != "Novo"){
+  //  status possiveis: lido, novo e autorizado
+  if (status != "Lido" && status != "Autorizado" && status != "Novo") {
     return res.status(400).json({
       message: 'Status inválido'
     })
   }
-  console.log("status", status)
 
   if (!qtdEntrada && !qtdSaida) {
     return res.status(400).json({
@@ -95,42 +76,26 @@ router.post("/", async (req, res) => {
     })
   }
   if (qtdEntrada && !qtdSaida) {
-    // const new_qtdSaida = 0
-    // // req.body.qtdSaida = 0;
-    // let qtdSaida = new_qtdSaida 
-
     qtdSaida = 0
   }
 
   if (qtdSaida && !qtdEntrada) {
-    // req.body.qtdEntrada = 0;
     qtdEntrada = 0
     valor_entrada = 0
   }
 
   if (qtdEntrada > 0) {
-    //   req.body.fk_tipoMoviId == 1;
     fk_tipoMoviId = 1
     valor_entrada > 0
   }
 
   if (qtdSaida > 0) {
-    // req.body.fk_tipoMoviId == "2";
     fk_tipoMoviId = 2
   }
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
   const new_fk_usuarioId = parseInt(fk_usuarioId)
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
   const new_fk_cadItemId = parseInt(fk_cadItemId)
-
-  // console.log(typeof new_fk_cadItemId)
-  // console.log(typeof new_fk_tipoMoviId)
-  // console.log(typeof new_fk_usuarioId)
-  // console.log(typeof new_fk_cadItemId)
-  // console.log(new_fk_cadItemId)
-  // console.log(new_fk_tipoMoviId)
-  // console.log("usuario", new_fk_usuarioId)
-  // console.log(new_fk_cadItemId)
 
   if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
     return res.status(400).json({
@@ -165,53 +130,67 @@ router.post("/", async (req, res) => {
           message: "Item invalido (qtd)"
         });
       }
-      const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ?";
-      db.query(validationProduto, [new_fk_cadItemId], (err, result) => {
+      const validationCadProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ?";
+      db.query(validationCadProduto, [new_fk_cadItemId], (err, result) => {
         if (err) {
           return res.status(500).json({
             error: err.message
           });
         }
-        const qtdProdutoExists = result[0].count > 0;
-        if (!qtdProdutoExists) {
+        const cadProdutoExists = result[0].count > 0;
+        if (!cadProdutoExists) {
           return res.status(400).json({
             message: "Item invalido (cad)"
           });
         }
-
-        const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
-        if (validationValorEntrada) {
-          return res.status(400).json({
-            message: "Valor Inválido"
-          });
-        }
-
-        const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-        const values = [
-          today,
-          qtdEntrada,
-          qtdSaida,
-          new_fk_tipoMoviId,
-          new_fk_usuarioId,
-          new_fk_qtdItemId,
-          new_fk_cadItemId,
-          status,
-          valor_entrada
-        ];
-
-        db.query(sql, values, (err, data) => {
+        const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ? AND qtdItemId = ?";
+        db.query(validationProduto, [new_fk_cadItemId, new_fk_qtdItemId], (err, result) => {
           if (err) {
             return res.status(500).json({
               error: err.message
             });
-          } else {
-            res.status(201).json({
-              message: 'Dados inseridos no sistema com sucesso'
-            })
           }
+          const ProdutoExists = result[0].count > 0;
+          if (!ProdutoExists) {
+            return res.status(400).json({
+              message: "Item invalido - O cadastro de item não corresponde a quantidade"
+            });
+          }
+
+          const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
+          if (validationValorEntrada) {
+            return res.status(400).json({
+              message: "Valor Inválido"
+            });
+          }
+
+          const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+          const values = [
+            today,
+            qtdEntrada,
+            qtdSaida,
+            new_fk_tipoMoviId,
+            new_fk_usuarioId,
+            new_fk_qtdItemId,
+            new_fk_cadItemId,
+            status,
+            valor_entrada
+          ];
+
+          db.query(sql, values, (err, data) => {
+            if (err) {
+              return res.status(500).json({
+                error: err.message
+              });
+            } else {
+              res.status(201).json({
+                message: 'Dados inseridos no sistema com sucesso'
+              })
+            }
+          });
         });
-      });
+      })
     })
   })
 })
@@ -311,14 +290,6 @@ router.put('/:id', (req, res) => {
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
   const new_fk_cadItemId = parseInt(fk_cadItemId)
 
-  // console.log(typeof new_fk_cadItemId)
-  // console.log(typeof new_fk_tipoMoviId)
-  // console.log(typeof new_fk_usuarioId)
-  // console.log(typeof new_fk_cadItemId)
-  // console.log(new_fk_cadItemId)
-  // console.log(new_fk_tipoMoviId)
-  // console.log("usuario", new_fk_usuarioId)
-  // console.log(new_fk_cadItemId)
 
   if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId) || !Number.isInteger(new_fk_qtdItemId) || !Number.isInteger(new_fk_cadItemId)) {
     return res.status(400).json({
@@ -375,15 +346,16 @@ router.put('/:id', (req, res) => {
 
         const sql = "UPDATE solicitacaoProd SET data = ?, qtdEntrada = ?, qtdSaida = ?, fk_tipoMoviId = ?, fk_usuarioId = ?, fk_qtdItemId = ?, status =?, valor_entrada = ? WHERE solicId = ?";
         const values = [
-          today, 
-          qtdEntrada, 
-          qtdSaida, 
-          new_fk_tipoMoviId, 
-          new_fk_usuarioId, 
-          new_fk_qtdItemId, 
+          today,
+          qtdEntrada,
+          qtdSaida,
+          new_fk_tipoMoviId,
+          new_fk_usuarioId,
+          new_fk_qtdItemId,
           status,
-          valor_entrada, 
-          id];
+          valor_entrada,
+          id
+        ];
 
         db.query(sql, values, (err, data) => {
           if (err) {

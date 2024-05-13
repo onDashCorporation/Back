@@ -1,10 +1,16 @@
+/* 
+URL base do Excel: 
+    http://localhost:3000/excel/estoque
+    http://localhost:3000/excel/controle
+
+*/
+
+
+
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
-const {
-  dadosReais,
-  dadosMockados,
-  dadosMockados2,
-} = require("../../database/dadoMockado");
+const axios = require("axios");
+
 
 router.get("/:tabela", async (req, res) => {
   try {
@@ -12,14 +18,45 @@ router.get("/:tabela", async (req, res) => {
     let listaDados = [];
 
     switch (req.params.tabela) {
-      case "dadosReais":
-        listaDados = dadosReais;
 
-        break;
-      case "dadosMockados":
-        listaDados = dadosMockados;
+      case "estoque":
+        // const responseEstoque = await axios.get("http://localhost:3000/estoque");
+        // listaDados = responseEstoque.data; 
+        
+        // try {
+        //   const responseEstoque = await axios.get("http://localhost:3000/estoque");
+        //   listaDados = responseEstoque.data.map(item => {
+        //     const { foto, ...rest } = item;
+        //     return rest;
+        //   });
+        // } catch (err) {
+        //   console.error("Erro ao obter dados de estoque:", err);
+        // }
 
-        break;
+        try {
+          const responseEstoque = await axios.get("http://localhost:3000/estoque");
+          listaDados = responseEstoque.data.map(item => {
+            return {
+              "Quantidade Total": item.qtdeTotal,
+              "Nome da Categoria": item.nome_categoria,
+              "Nome do Item": item.nome_item,
+              "Quantidade Mínima": item.qtdMin,
+              "Quantidade": item.qtde,
+              "Valor do Item": item.valorItem
+            };
+          });
+        } catch (err) {
+          console.error("Erro ao obter dados de estoque:", err);
+        }
+      
+      break;
+      
+      case "controle":
+        const responseControle = await axios.get("http://localhost:3000/controle");
+        listaDados = responseControle.data;
+
+      break;
+
       default:
         break;
     }

@@ -1,11 +1,12 @@
 create database onDash;
 use onDash;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 30/04/2024 às 21:42
+-- Tempo de geração: 07/05/2024 às 19:56
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -148,11 +149,19 @@ CREATE TABLE `solicitacaoprod` (
 -- Acionadores `solicitacaoprod`
 --
 DELIMITER $$
-CREATE TRIGGER `calcPrecoMedio` AFTER INSERT ON `solicitacaoprod` FOR EACH ROW BEGIN
-	-- atualizar os preços na tabela de cadastro de item
+CREATE TRIGGER `calcPrecoMedio` 
+AFTER INSERT ON `solicitacaoprod` 
+FOR EACH ROW 
+BEGIN
+    -- atualizar os preços na tabela de cadastro de item
     UPDATE qtdItem
+<<<<<<< HEAD
     SET valor = ((qtde * valorItem) + (qtdEntrada * valor_entrada)) / (qtde + qtdEntrada) 
     WHERE qtdItemId = fk_qtdItemId;
+=======
+    SET valorItem = ((qtde * valorItem) + (NEW.qtdEntrada * NEW.valor_entrada)) / (qtde + NEW.qtdEntrada)
+    WHERE qtdItemId = NEW.fk_qtdItemId;
+>>>>>>> 2ba2a71d886e0c9d7c61793b6b1f9382ea0dfe1a
 END
 $$
 DELIMITER ;
@@ -319,6 +328,36 @@ ALTER TABLE `usuarios`
 --
 -- AUTO_INCREMENT para tabelas despejadas
 --
+
+--
+-- AUTO_INCREMENT de tabela `cadastroitem`
+--
+ALTER TABLE `cadastroitem`
+  MODIFY `cadItemId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `categoria`
+--
+ALTER TABLE `categoria`
+  MODIFY `cateId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `estoque`
+--
+ALTER TABLE `estoque`
+  MODIFY `estoqueId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `qtditem`
+--
+ALTER TABLE `qtditem`
+  MODIFY `qtdItemId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `solicitacaoprod`
+--
+ALTER TABLE `solicitacaoprod`
+  MODIFY `solicId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`

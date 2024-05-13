@@ -28,14 +28,6 @@ router.post('/', (req, res) => {
         })
     }
 
-    // const itemPattern = /^\d+$/ // regex para numeros
-
-    // if (!String(fk_cadItemId).match(itemPattern)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id do item'
-    //     })
-    // }
-
     if (!Number.isInteger(fk_cadItemId)) {
         return res.status(400).json({
             message: 'Insira o id do item como um número inteiro'
@@ -142,13 +134,6 @@ router.put('/:id', (req, res) => {
         })
     }
 
-    // const itemPattern = /^\d+$/ // regex para numeros
-
-    // if (!fk_cadItemId.match(itemPattern)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id do item'
-    //     })
-    // }
 
     if (!Number.isInteger(fk_cadItemId)) {
         return res.status(400).json({
