@@ -148,6 +148,19 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     message: 'Departamento inválido'
                 });
             }
+            const validationCargo = "SELECT COUNT(*) AS count FROM cargos WHERE cargoId = ?";
+            db.query(validationCargo, [new_fk_cargo], (err, result) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+                const cargoExists = result[0].count > 0;
+                if (!cargoExists) {
+                    return res.status(400).json({
+                        message: 'Cargo inválido'
+                    });
+                }
 
             const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto_usu`) VALUES (?, ?, ?, ?, ?, ?)"
 
@@ -177,6 +190,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
             })
         })
     })
+})
 })
 
 router.get('/', (req, res) => {
