@@ -3,7 +3,7 @@ name: Publish commit to hub.docker repository
 on: 
   push:
     branches:
-      - "main" 
+      - "deploy" 
 
 jobs: 
   # trabalho para publicar no docker hub
@@ -30,5 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
