@@ -37,7 +37,7 @@ const upload = multer({
 router.post('/upload', upload.single('foto'), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
-    const sql = "UPDATE cadastroItem SET foto=?"
+    const sql = "UPDATE cadastroitem SET foto=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
             Message: "Error"
@@ -91,7 +91,7 @@ router.post('/', upload.single('foto'), (req, res) => {
         });
     }
 
-    const validationItem = "SELECT COUNT(*) AS count FROM cadastroItem WHERE nome_item = ?"
+    const validationItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE nome_item = ?"
     db.query(validationItem, [nome_item], (err, result) => {
         if (err) {
             return res.status(500).json({
@@ -121,7 +121,7 @@ router.post('/', upload.single('foto'), (req, res) => {
 
             const fk_categoriaId = result[0].new_fk_categoriaId;
 
-            const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
+            const sql = "INSERT INTO cadastroitem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
             const values = [foto.filename, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
@@ -140,7 +140,7 @@ router.post('/', upload.single('foto'), (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem";
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroitem";
     const values = [req.body.cadItemId, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
 
     db.query(sql, values, (err, data) => {
@@ -156,7 +156,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem WHERE cadItemId = ?";
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroitem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -207,7 +207,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
     }
     console.log(typeof fk_categoriaId)
 
-    const new_fk_categoriaId = parseInt(fk_categoriaId) 
+    const new_fk_categoriaId = parseInt(fk_categoriaId)
 
     if (!Number.isInteger(new_fk_categoriaId)) {
         return res.status(400).json({
@@ -230,7 +230,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
         const categoriaId = result[0].categoriaId;
 
-        const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
+        const sql = "UPDATE cadastroitem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
         const values = [foto.filename, nome_item, qtdMin, categoriaId, id];
 
         db.query(sql, values, (err, data) => {
@@ -253,7 +253,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM cadastroItem WHERE cadItemId = ?";
+    const sql = "DELETE FROM cadastroitem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
