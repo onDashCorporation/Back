@@ -126,12 +126,12 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                 message: 'Este email já está cadastrado'
             });
         }
-        console.log(fk_depId)
         const new_fk_depId = parseInt(fk_depId)
+        const new_fk_cargoId = parseInt(fk_cargoId)
 
-        if (!Number.isInteger(new_fk_depId)) {
+        if (!Number.isInteger(new_fk_depId) || (!Number.isInteger(new_fk_cargoId))) {
             return res.status(400).json({
-                message: 'Insira o id do departamento como um número inteiro'
+                message: 'Insira os IDs como um número inteiro'
             });
         }
 
@@ -149,7 +149,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                 });
             }
             const validationCargo = "SELECT COUNT(*) AS count FROM cargos WHERE cargoId = ?";
-            db.query(validationCargo, [new_fk_cargo], (err, result) => {
+            db.query(validationCargo, [new_fk_cargoId], (err, result) => {
                 if (err) {
                     return res.status(500).json({
                         error: err.message
