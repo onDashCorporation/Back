@@ -19,19 +19,6 @@ router.get("/:tabela", async (req, res) => {
     switch (req.params.tabela) {
 
       case "estoque":
-        // const responseEstoque = await axios.get("http://localhost:3000/estoque");
-        // listaDados = responseEstoque.data; 
-        
-        // try {
-        //   const responseEstoque = await axios.get("http://localhost:3000/estoque");
-        //   listaDados = responseEstoque.data.map(item => {
-        //     const { foto, ...rest } = item;
-        //     return rest;
-        //   });
-        // } catch (err) {
-        //   console.error("Erro ao obter dados de estoque:", err);
-        // }
-
         try {
           const responseEstoque = await axios.get("http://localhost:3000/estoque");
           listaDados = responseEstoque.data.map(item => {
@@ -51,8 +38,6 @@ router.get("/:tabela", async (req, res) => {
       break;
       
       case "controle":
-        // const responseControle = await axios.get("http://localhost:3000/controle");
-        // listaDados = responseControle.data;
 
         try {
           const responseEstoque = await axios.get("http://localhost:3000/controle");
