@@ -80,7 +80,7 @@ router.get("/:tabela", async (req, res) => {
 
     // Verifica se a lista ta vazia e devolve erro
     if (!!listaDados[0] == false) {
-      res.status(404).json({ errado: "sim" });
+      res.status(404).json({ errado: "Não há dados para serem extraídos" });
     }
 
     const response = await gerarExcel(listaDados);
