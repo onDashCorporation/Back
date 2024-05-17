@@ -25,10 +25,6 @@ const db = createDBConnection()
 const dataAtual = new Date();
 const today = dataAtual.toISOString().split('T')[0];
 
-const axios = require("axios");
-const dotenv = require('dotenv')
-dotenv.config()
-
 router.post("/", async (req, res) => {
   let {
     qtdEntrada,
@@ -191,17 +187,19 @@ router.post("/", async (req, res) => {
               // res.status(201).json({
               //   message: 'Dados inseridos no sistema com sucesso'
               // })
-              axios.post(process.env.CLIENT_URL + "/controle", { fk_solicId: data.insertId })
-              .then(response => {
+              axios.post(process.env.CLIENT_URL + "/controle", {
+                  fk_solicId: data.insertId
+                })
+                .then(response => {
                   console.log("Dados inseridos no controle com sucesso");
-              })
-              .catch(error => {
+                })
+                .catch(error => {
                   console.error("Erro ao inserir dados no controle:", error);
-              });
-  
-                res.status(201).json({
-                    message: 'Dados inseridos no sistema com sucesso'
                 });
+
+              res.status(201).json({
+                message: 'Dados inseridos no sistema com sucesso'
+              });
             }
           });
         });
