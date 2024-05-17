@@ -139,13 +139,13 @@ async function sendResetEmail({ recipient_email, resetLink }) {
         const mailConfig = {
             from: process.env.DB_EMAIL,
             to: recipient_email,
-            subject: "Redefinição de senha - Koding 102",
+            subject: "Redefinição de senha - Stock Box",
             html: `
             <!DOCTYPE html>
-            <html lang="en">
+            <html lang="pt-br">
             <head>
                 <meta charset="UTF-8">
-                <title>Koding 101 - Redefinição de Senha</title>
+                <title>Stock Box - Redefinição de Senha</title>
             </head>
             <body>
                 <div style="font-family: Helvetica, Arial, sans-serif; min-width:1000px; overflow:auto; line-height:2">
@@ -157,12 +157,12 @@ async function sendResetEmail({ recipient_email, resetLink }) {
                         <p>Sua senha foi redefinida com sucesso.</p>
                         <p>Por favor, clique no link abaixo para redefinir sua senha:</p>
                         <a href="${resetLink}" style="display: block; margin-top: 10px;">Redefinir senha</a>
-                        <p style="font-size:0.9em;">Atenciosamente,<br />Koding 101</p>
+                        <p style="font-size:0.9em;">Atenciosamente,<br />Equipe Stock Box</p>
                         <hr style="border:none; border-top:1px solid #eee" />
                         <div style="float:right; padding:8px 0; color:#aaa; font-size:0.8em; line-height:1; font-weight:300">
-                            <p>Koding 101 Inc</p>
-                            <p>1600 Amphitheatre Parkway</p>
-                            <p>California</p>
+                            <p>Stock Box Inc</p>
+                            <p>R. Bento Branco de Andrade Filho</p>
+                            <p>Brasil - SP</p>
                         </div>
                     </div>
                 </div>
