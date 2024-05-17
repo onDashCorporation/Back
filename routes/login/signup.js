@@ -42,7 +42,7 @@ const upload = multer({
 router.post('/upload', upload.single('foto_usu'), (req, res) => {
     console.log(req.file)
     const foto_usu = req.file.filename
-    const sql = "UPDATE cadastroItem SET foto_usu=?"
+    const sql = "UPDATE usuarios SET foto_usu=?"
     db.query(sql, [foto_usu], (err, result) => {
         if (err) return res.json({
             Message: "Error"
@@ -148,6 +148,19 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     message: 'Departamento inválido'
                 });
             }
+            const validationCargo = "SELECT COUNT(*) AS count FROM cargos WHERE cargoId = ?";
+            db.query(validationCargo, [new_fk_cargo], (err, result) => {
+                if (err) {
+                    return res.status(500).json({
+                        error: err.message
+                    });
+                }
+                const cargoExists = result[0].count > 0;
+                if (!cargoExists) {
+                    return res.status(400).json({
+                        message: 'Cargo inválido'
+                    });
+                }
 
             const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto_usu`) VALUES (?, ?, ?, ?, ?, ?)"
 
@@ -178,6 +191,40 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
         })
     })
 })
+})
+
+router.get('/', (req, res) => {
+    const sql = "SELECT * FROM usuarios";
+    db.query(sql, (err, data) => {
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        } else {
+            res.status(200).json(data);
+        }
+    });
+});
+
+router.get('/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "SELECT usuId, usuNome, email, fk_cargoId, fk_depId FROM usuarios WHERE usuId = ?";
+    const values = [id];
+
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'Usuário não encontrado'
+            });
+        }
+        res.status(200).json(data[0]);
+    });
+});
 
 router.put('/:id', upload.single('foto_usu'), (req, res) => {
     const id = req.params.id;
@@ -261,4 +308,26 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
         })
     })
 })
+
+router.delete('/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "DELETE FROM usuarios WHERE usuId = ?";
+    const values = [id];
+
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'Usuário não encontrado'
+            });
+        }
+        res.status(200).json({
+            message: 'Dados deletados do sistema com sucesso'
+        });
+    });
+});
 module.exports = router;

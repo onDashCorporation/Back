@@ -8,8 +8,7 @@ function createDBConnection() {
         host: process.env.HOST_DATABASE || "localhost",
         user: process.env.MYSQL_USER || 'root',
         password: process.env.MYSQL_PASSWORD || '',
-        database: 'onDash',
-        port: 3306,
+        database: 'onDash'
     });
 
     return db;
