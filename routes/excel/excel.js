@@ -9,7 +9,8 @@ URL base do Excel:
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
 const axios = require("axios");
-
+const dotenv = require('dotenv')
+dotenv.config()
 
 router.get("/:tabela", async (req, res) => {
   try {
@@ -20,7 +21,7 @@ router.get("/:tabela", async (req, res) => {
 
       case "estoque":
         try {
-          const responseEstoque = await axios.get("http://localhost:3000/estoque");
+          const responseEstoque = await axios.get(process.env.CLIENT_URL + "/estoque");
           listaDados = responseEstoque.data.map(item => {
             return {
               "Quantidade Total": item.qtdeTotal,
@@ -40,7 +41,7 @@ router.get("/:tabela", async (req, res) => {
       case "controle":
 
         try {
-          const responseEstoque = await axios.get("http://localhost:3000/controle");
+          const responseEstoque = await axios.get(process.env.CLIENT_URL + "/controle");
           listaDados = responseEstoque.data.map(control => {
             return {
               "Solicitação": control.solicId,
