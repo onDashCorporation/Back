@@ -52,7 +52,7 @@ router.post('/', (req, res) => {
 
         
             const token = jwt.sign({ novaSenha }, secret, { expiresIn: '1h' });
-            const resetLink = `http://localhost:3000/${token}`;
+            const resetLink = `http://localhost:5173/reset/${token}`;
 
             // Envie o email de redefinição de senha com o link de reset
             sendResetEmail({ recipient_email: user.email, resetLink })
