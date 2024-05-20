@@ -1,6 +1,9 @@
 # Tarefandoo - TODO List
 Descrição... API - Back-End
 
+# Documentção Swagger
+- [Documentação](https://app.swaggerhub.com/apis-docs/annaagabi/onDash/1.0.0#/Solicita%C3%A7%C3%A3o/get_solicitacao)
+
 ## 1. Criando:
 **No terminal (Back):**
 - [x] Inicializando o projeto (criar o package. json): `npm init -y`
