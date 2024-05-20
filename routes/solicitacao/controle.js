@@ -149,9 +149,24 @@ router.get('/datas', (req, res) => {
     })
 })
 
-router.get('/datas', (req, res) => {
-    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle WHERE'
+router.get('/testes/:id', (req, res) => {
+    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome, data, solicId FROM view_controle1 WHERE cadItemId = ? ORDER BY data ASC';
+
+    db.query(sql, [req.params.id], (err, data) => {
+        if(err){
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+        if (data.length === 0){
+            return res.status(400).json({
+                message: 'Produto não encontrado.'
+            });
+        }
+        res.status(200).json(data)
+    })
 })
+
 
 router.put('/:id', (req, res) => {
     const id = req.params.id;
