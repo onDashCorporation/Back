@@ -149,6 +149,10 @@ router.get('/datas', (req, res) => {
     })
 })
 
+router.get('/datas', (req, res) => {
+    const sql = 'SELECT qtdEntrada, qtdSaida, valor_entrada, cargo_nome FROM view_controle WHERE'
+})
+
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const { fk_solicId } = req.body;
