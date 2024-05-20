@@ -23,7 +23,7 @@ const secret = process.env.JWT_KEY;
 
 router.post('/', (req, res) => {
     const { token } = req.body; // Extrai o token e o usuarioId da URL
-    const { senha } = req.body;
+    const { novaSenha } = req.body;
 
     console.log("Body: " ,req.body)
 

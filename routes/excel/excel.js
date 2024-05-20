@@ -6,11 +6,11 @@ URL base do Excel:
 */
 
 
-
 const router = require("express").Router();
 const gerarExcel = require("../../controller/excel");
 const axios = require("axios");
-
+const dotenv = require('dotenv')
+dotenv.config()
 
 router.get("/:tabela", async (req, res) => {
   try {
@@ -20,21 +20,8 @@ router.get("/:tabela", async (req, res) => {
     switch (req.params.tabela) {
 
       case "estoque":
-        // const responseEstoque = await axios.get("http://localhost:3000/estoque");
-        // listaDados = responseEstoque.data; 
-        
-        // try {
-        //   const responseEstoque = await axios.get("http://localhost:3000/estoque");
-        //   listaDados = responseEstoque.data.map(item => {
-        //     const { foto, ...rest } = item;
-        //     return rest;
-        //   });
-        // } catch (err) {
-        //   console.error("Erro ao obter dados de estoque:", err);
-        // }
-
         try {
-          const responseEstoque = await axios.get("http://localhost:3000/estoque");
+          const responseEstoque = await axios.get(process.env.CLIENT_URL + "/estoque");
           listaDados = responseEstoque.data.map(item => {
             return {
               "Quantidade Total": item.qtdeTotal,
@@ -52,8 +39,24 @@ router.get("/:tabela", async (req, res) => {
       break;
       
       case "controle":
-        const responseControle = await axios.get("http://localhost:3000/controle");
-        listaDados = responseControle.data;
+
+        try {
+          const responseEstoque = await axios.get(process.env.CLIENT_URL + "/controle");
+          listaDados = responseEstoque.data.map(control => {
+            return {
+              "Solicitação": control.solicId,
+              "Data": control.data,
+              "Quantidade de Entrada": control.qtdEntrada,
+              "Quantidade de Saída": control.qtdSaida,
+              "Valor Entrada": control.valor_entrada,
+              "Status": control.status,
+              "Nome do Usuário": control.usuNome,
+              "Cargo": control.cargo_nome
+            };
+          });
+        } catch (err) {
+          console.error("Erro ao obter dados de estoque:", err);
+        }
 
       break;
 
@@ -63,7 +66,7 @@ router.get("/:tabela", async (req, res) => {
 
     // Verifica se a lista ta vazia e devolve erro
     if (!!listaDados[0] == false) {
-      res.status(404).json({ errado: "sim" });
+      res.status(404).json({ erro: "Não há dados para serem extraídos" });
     }
 
     const response = await gerarExcel(listaDados);

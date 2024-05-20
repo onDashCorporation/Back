@@ -25,6 +25,10 @@ const db = createDBConnection()
 const dataAtual = new Date();
 const today = dataAtual.toISOString().split('T')[0];
 
+const axios = require("axios");
+const dotenv = require('dotenv')
+dotenv.config()
+
 router.post("/", async (req, res) => {
   let {
     qtdEntrada,
@@ -184,9 +188,22 @@ router.post("/", async (req, res) => {
                 error: err.message
               });
             } else {
+              // res.status(201).json({
+              //   message: 'Dados inseridos no sistema com sucesso'
+              // })
+              axios.post(process.env.CLIENT_URL + "/controle", {
+                  fk_solicId: data.insertId
+                })
+                .then(response => {
+                  console.log("Dados inseridos no controle com sucesso");
+                })
+                .catch(error => {
+                  console.error("Erro ao inserir dados no controle:", error);
+                });
+
               res.status(201).json({
                 message: 'Dados inseridos no sistema com sucesso'
-              })
+              });
             }
           });
         });
@@ -368,8 +385,21 @@ router.put('/:id', (req, res) => {
               message: 'Solicitação não encontrada'
             });
           }
+          // res.status(200).json({
+          //   message: 'Dados atualizados do sistema com sucesso'
+          // });
+          axios.put(`${process.env.CLIENT_URL}/controle/${id}`, {
+              fk_solicId: id
+            })
+            .then(response => {
+              console.log("Dados atualizados no controle com sucesso");
+            })
+            .catch(error => {
+              console.error("Erro ao atualizar dados no controle:", error);
+            });
+
           res.status(200).json({
-            message: 'Dados atualizados do sistema com sucesso'
+            message: 'Dados atualizados no sistema com sucesso'
           });
         });
       });

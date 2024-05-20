@@ -73,16 +73,16 @@ Descrição... API - Back-End
 ## 3.5 Cadastro de Item
 
 ### 3.5.1 Para verificar os itens cadastrados e para adicionar um novo cadastro
-- [x] {{URL}}/item
-- [x] http://localhost:3000/item/
+- [x] {{URL}}/cadItem
+- [x] http://localhost:3000/cadItem/
   
 ### 3.5.2 Para deletar, editar ou vizualizar um cadastro de item específico
-- [x] {{URL}}/item/:id
-- [x] http://localhost:3000/item/2
+- [x] {{URL}}/cadItem/:id
+- [x] http://localhost:3000/cadItem/2
   
 ### 3.5.3 Para verificar os itens cadastrados e para adicionar um novo cadastro
-- [x] {{URL}}/item
-- [x] http://localhost:3000/item/
+- [x] {{URL}}/cadItem
+- [x] http://localhost:3000/cadItem/
 
 ## 3.6 Categorias
 
@@ -140,6 +140,14 @@ Descrição... API - Back-End
 - [x] {{URL}}/controle
 - [x] http://localhost:3000/controle/
 
+### 3.9.4 Para verificar os controles cadastrados pelo mês
+- [x] {{URL}}/controle/mes/:month
+- [X] {{URL}}/controle/mes/05
+
+### 3.9.5 Para verificar os controles cadastados em um dia e mês específico
+- [x] {{URL}}/controle/datas/:day/:month
+- [x] {{URL}}/controle/datas/14/05
+
 ## 3.10 Solicitação
 
 ### 3.10.1 Para verificar as solicitações cadastradas e para adicionar um novo cadastro
@@ -177,5 +185,3 @@ Descrição... API - Back-End
 ### 3.12.2 Para baixar relatórios da View Controle
 - [x] {{URL}}/excel/controle
 - [x] http://localhost:3000/excel/controle
-  
-
