@@ -20,30 +20,19 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
+// tratamento de imagens
+const uploadS3 = require("../../config/upload-s3.js")
+const multer = require('multer');
+
+// criptografia
 const bcrypt = require('bcrypt')
 const salt = 10
 
-const multer = require('multer')
-const path = require('path')
-
-const storage = multer.diskStorage({
-    // destination: (req, file, cb) => {
-    //     cb(null,'')
-    // },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
-
-router.post('/upload', upload.single('foto_usu'), (req, res) => {
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
-    const foto_usu = req.file.filename
+    const foto = req.file.location
     const sql = "UPDATE usuarios SET foto_usu=?"
-    db.query(sql, [foto_usu], (err, result) => {
+    db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
             Message: "Error"
         })
@@ -53,10 +42,7 @@ router.post('/upload', upload.single('foto_usu'), (req, res) => {
     })
 })
 
-// const inserir = require('../../Querys/login/inserirDados')
-// const validar = require('../../Querys/login/validarEmail')
-
-router.post('/', upload.single('foto_usu'), (req, res) => {
+router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
         usuNome,
         email,
@@ -66,7 +52,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
     } = req.body
 
     const foto_padrao = '../img/dft_foto.jpg'
-    const foto_usu = req.file ? req.file.filename : foto_padrao
+    const foto = req.file ? req.file.location : foto_padrao
 
     if (!usuNome || !email || !senha || !fk_depId) {
         return res.status(400).json({
@@ -174,7 +160,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     hash,
                     fk_cargoId,
                     fk_depId,
-                    foto_usu
+                    foto
                 ]
 
                 db.query(sql, values, (err, result) => {
@@ -226,7 +212,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', upload.single('foto_usu'), (req, res) => {
+router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     const id = req.params.id;
     const {
         usuNome,
@@ -234,7 +220,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto_usu = req.file ? req.file.filename : '../img/dft_foto.jpg'
+    const foto = req.file ? req.file.location : '../img/dft_foto.jpg'
 
     if (!usuNome || !email || !fk_depId || !foto_usu) {
         return res.status(400).json({
@@ -291,7 +277,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
                 hash,
                 fk_cargoId,
                 fk_depId,
-                foto_usu.filename
+                foto
             ]
 
             db.query(sql, values, (err, result) => {
@@ -330,4 +316,5 @@ router.delete('/:id', (req, res) => {
         });
     });
 });
+
 module.exports = router;

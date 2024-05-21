@@ -19,11 +19,11 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
-const uploadS3 = require("../../config/upload-s3.js")
 const path = require('path');
+
+// tratamento de imagens
+const uploadS3 = require("../../config/upload-s3.js")
 const multer = require('multer');
-
-
 
 router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
@@ -38,8 +38,6 @@ router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
         })
     })
 })
-
-
 
 router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
@@ -113,7 +111,7 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
             const fk_categoriaId = result[0].new_fk_categoriaId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
-            const values = [foto.filename, nome_item, qtdMin, new_fk_categoriaId];
+            const values = [foto.location, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
@@ -222,7 +220,7 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
         const categoriaId = result[0].categoriaId;
 
         const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
-        const values = [foto.filename, nome_item, qtdMin, categoriaId, id];
+        const values = [foto.location, nome_item, qtdMin, categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
