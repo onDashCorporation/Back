@@ -162,7 +162,7 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     });
                 }
 
-            const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto_usu`) VALUES (?, ?, ?, ?, ?, ?)"
+            const sql = "INSERT INTO usuarios (`usuNome`,`email`,`senha`, `fk_cargoId`, `fk_depId`, `foto_usu`) VALUES (?, ?, ?, 3, ?, ?)"
 
             bcrypt.hash(req.body.senha.toString(), salt, (err, hash) => {
                 if (err) return res.json({
