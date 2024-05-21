@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+const { S3Client } = require("@aws-sdk/client-s3");
 const multerS3 = require("multer-s3");
 const crypto = require("crypto");
 
@@ -6,8 +6,12 @@ require("dotenv").config();
 
 module.exports = {
   storage: multerS3({
-    s3: new AWS.S3({
-      // adicionar credencias validas (estou usando depreciadas)
+    s3: new S3Client({
+      credentials: {
+        accessKeyId: process.env.ACESS_KEY_ID,
+        secretAccessKey: process.env.SECRET_ACESS_KEY
+      },
+      region: process.env.REGION
     }),
     bucket: process.env.BUCKET_NAME,
     contentType: multerS3.AUTO_CONTENT_TYPE,
