@@ -15,8 +15,10 @@ const db = createDBConnection();
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_KEY;
+const dotenv = require('dotenv');
+dotenv.config();
 
-const clientURL = process.env.CLIENT_URL;
+const frontURL = process.env.FRONT_URL;
 
 // const queryLogin = require('../../Querys/login/usuarios')
 
@@ -52,7 +54,8 @@ router.post('/', (req, res) => {
 
         
             const token = jwt.sign({ novaSenha }, secret, { expiresIn: '1h' });
-            const resetLink = `http://localhost:5173/reset/${token}`;
+            // const resetLink = `http://localhost:5173/reset/${token}`;
+            const resetLink = `${frontURL}/reset/${token}`;
 
             // Envie o email de redefinição de senha com o link de reset
             sendResetEmail({ recipient_email: user.email, resetLink })
