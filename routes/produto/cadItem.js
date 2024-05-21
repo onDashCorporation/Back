@@ -19,12 +19,13 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
-const path = require('path');
-
-// tratamento de imagens
 const uploadS3 = require("../../config/upload-s3.js")
+const path = require('path');
 const multer = require('multer');
 
+
+
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
 router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
@@ -38,6 +39,8 @@ router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
         })
     })
 })
+
+
 
 router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
