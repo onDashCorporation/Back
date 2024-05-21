@@ -19,25 +19,13 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
+const uploadS3 = require("../../config/upload-s3.js")
+const path = require('path');
+const multer = require('multer');
 
 
-const multer = require('multer')
-const path = require('path')
 
-const storage = multer.diskStorage({
-    destination: (req,file,cb) => {
-        cb(null,"../../img")
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
-
-router.post('/upload', upload.single('foto'), (req, res) => {
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
     const sql = "UPDATE cadastroItem SET foto=?"
@@ -53,7 +41,7 @@ router.post('/upload', upload.single('foto'), (req, res) => {
 
 
 
-router.post('/', upload.single('foto'), (req, res) => {
+router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
         cadItemId,
         nome_item,
@@ -178,7 +166,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', upload.single('foto'), (req, res) => {
+router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     const id = req.params.id;
     const {
         cadItemId,
