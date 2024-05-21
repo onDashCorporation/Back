@@ -62,7 +62,7 @@ router.post('/', upload.single('foto'), (req, res) => {
     } = req.body
     const foto = req.file
 
-    if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
+    if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
