@@ -212,6 +212,25 @@ router.post("/", async (req, res) => {
   })
 })
 
+router.get('/user/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
+  const values = [userId];
+
+  db.query(sql, values, (err, data) => {
+      if (err) {
+          return res.status(500).json({
+              error: err.message
+          });
+      }
+      if (data.length === 0) {
+          return res.status(404).json({
+              message: 'Nenhuma solicitação encontrada para este usuário'
+          });
+      }
+      res.status(200).json(data);
+  });
+});
 
 router.get('/', (req, res) => {
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd";
