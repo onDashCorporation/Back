@@ -247,7 +247,7 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/user/:id', (req, res) => {
   const id = req.params.id;
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
   const values = [id];
