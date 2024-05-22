@@ -212,7 +212,7 @@ router.post("/", async (req, res) => {
   })
 })
 
-router.get('/user/:userId', (req, res) => {
+router.get('/:userId', (req, res) => {
   const userId = req.params.userId;
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
   const values = [userId];
