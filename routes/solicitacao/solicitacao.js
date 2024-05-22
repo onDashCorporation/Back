@@ -29,6 +29,8 @@ const axios = require("axios");
 const dotenv = require('dotenv')
 dotenv.config()
 
+
+// Cria uma nova solicitação
 router.post("/", async (req, res) => {
   let {
     qtdEntrada,
@@ -212,26 +214,7 @@ router.post("/", async (req, res) => {
   })
 })
 
-router.get('/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
-  const values = [userId];
-
-  db.query(sql, values, (err, data) => {
-      if (err) {
-          return res.status(500).json({
-              error: err.message
-          });
-      }
-      if (data.length === 0) {
-          return res.status(404).json({
-              message: 'Nenhuma solicitação encontrada para este usuário'
-          });
-      }
-      res.status(200).json(data);
-  });
-});
-
+// Pega todas as solicitações
 router.get('/', (req, res) => {
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd";
   const values = [req.body.solicId, req.body.data, req.body.qtdEntrada, req.body.qtdSaida, req.body.fk_tipoMoviId, req.body.fk_usuarioId, req.body.fk_qtdItemId, req.body.valor_entrada];
@@ -247,7 +230,8 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/user/:id', (req, res) => {
+// Pega uma a solicitação baseado no ID
+router.get('/:id', (req, res) => {
   const id = req.params.id;
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
   const values = [id];
@@ -266,14 +250,29 @@ router.get('/user/:id', (req, res) => {
     res.status(200).json(data[0]);
   });
 });
-router.get('/items/:solicId', (req, res) => {
+
+// Pega o item (cadastro e quantidade) baseado no id da solicitação
+router.get('/item/:solicId', (req, res) => {
   const solicId = req.params.solicId;
   const sql = `
-    SELECT s.solicId, s.data, s.qtdEntrada, s.qtdSaida, s.fk_tipoMoviId, s.fk_usuarioId, s.fk_qtdItemId, s.status, s.valor_entrada,
-           c.nome_item AS nome_item, c.qtdMin AS qtdMin,  c.fk_categoriaId AS fk_categoriaId, c.cadItemId AS cadItemId
+    SELECT s.solicId, 
+            s.fk_tipoMoviId, 
+            s.fk_usuarioId, 
+            s.fk_qtdItemId,
+            c.fk_categoriaId,
+            c.cadItemId,
+            c.nome_item,   
+            cat.nome_categoria,
+            c.qtdMin,
+            s.qtdEntrada, 
+            s.qtdSaida, 
+            s.status, 
+            s.valor_entrada,
+            s.data
     FROM solicitacaoProd s
     INNER JOIN qtditem q ON s.fk_qtdItemId = q.qtdItemId
     INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
     WHERE s.solicId = ?`;
 
   db.query(sql, [solicId], (err, data) => {
@@ -291,6 +290,7 @@ router.get('/items/:solicId', (req, res) => {
   });
 });
 
+// Altera uma solicitação baseado no ID
 router.put('/:id', (req, res) => {
   const id = req.params.id;
   let {
@@ -450,9 +450,12 @@ router.put('/:id', (req, res) => {
   });
 });
 
+// Altera apenas o status da solicitação baseado no ID
 router.put('/status/:id', (req, res) => {
   const id = req.params.id;
-  let { status } = req.body;
+  let {
+    status
+  } = req.body;
 
   if (!status) {
     return res.status(400).json({
