@@ -51,8 +51,6 @@ router.post('/upload', upload.single('foto'), (req, res) => {
     })
 })
 
-
-
 router.post('/', upload.single('foto'), (req, res) => {
     const {
         cadItemId,
@@ -60,7 +58,7 @@ router.post('/', upload.single('foto'), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file ? req.file.filename : 'dft_foto.jpg'
 
     if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
@@ -122,11 +120,11 @@ router.post('/', upload.single('foto'), (req, res) => {
                 });
             }
 
-            const foto_padrao = '../img/dft_foto.jpg'
-            const fk_categoriaId = result[0].new_fk_categoriaId;
+
+            const new_fk_categoriaId = result[0].new_fk_categoriaId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
-            const values = [foto_padrao.filename, nome_item, qtdMin, new_fk_categoriaId];
+            const values = [foto, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
