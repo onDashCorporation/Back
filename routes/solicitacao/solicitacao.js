@@ -251,6 +251,27 @@ router.get('/:id', (req, res) => {
   });
 });
 
+// Pega uma a solicitação baseado no ID
+router.get('/user/:usuarioId', (req, res) => {
+  const id = req.params.usuarioId;
+  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
+  const values = [id];
+
+  db.query(sql, values, (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({
+        message: 'Solicitação não encontrada'
+      });
+    }
+    res.status(200).json(data[0]);
+  });
+});
+
 // Pega o item (cadastro e quantidade) baseado no id da solicitação
 router.get('/item/:solicId', (req, res) => {
   const solicId = req.params.solicId;
