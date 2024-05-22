@@ -677,11 +677,31 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// Pega uma a solicitação baseado no ID
+// Pega uma a solicitação baseado no ID do usuario
 router.get('/user/:userId', (req, res) => {
   const userId = req.params.userId;
   const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
   const values = [userId];
+
+  db.query(sql, values, (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({
+        message: 'Nenhuma solicitação encontrada para este usuário'
+      });
+    }
+    res.status(200).json(data);
+  });
+});
+// Pega uma a solicitação baseado no ID do tipo de movimentação
+router.get('/tipoMovi/:tmId', (req, res) => {
+  const tmId = req.params.tmId;
+  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_tipoMoviId = ?";
+  const values = [tmId];
 
   db.query(sql, values, (err, data) => {
     if (err) {
