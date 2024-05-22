@@ -266,6 +266,30 @@ router.get('/user/:id', (req, res) => {
     res.status(200).json(data[0]);
   });
 });
+router.get('/items/:solicId', (req, res) => {
+  const solicId = req.params.solicId;
+  const sql = `
+    SELECT s.solicId, s.data, s.qtdEntrada, s.qtdSaida, s.fk_tipoMoviId, s.fk_usuarioId, s.fk_qtdItemId, s.status, s.valor_entrada,
+           c.nome_item AS nome_item, c.qtdMin AS qtdMin,  c.fk_categoriaId AS fk_categoriaId, c.cadItemId AS cadItemId
+    FROM solicitacaoProd s
+    INNER JOIN qtditem q ON s.fk_qtdItemId = q.qtdItemId
+    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    WHERE s.solicId = ?`;
+
+  db.query(sql, [solicId], (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({
+        message: 'Solicitação não encontrada'
+      });
+    }
+    res.status(200).json(data[0]);
+  });
+});
 
 router.put('/:id', (req, res) => {
   const id = req.params.id;
