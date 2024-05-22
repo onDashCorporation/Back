@@ -121,7 +121,7 @@ router.post('/', upload.single('foto'), (req, res) => {
             }
 
 
-            const new_fk_categoriaId = result[0].new_fk_categoriaId;
+            const new_fk_categoriaId = result[0].cateId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
             const values = [foto, nome_item, qtdMin, new_fk_categoriaId];
