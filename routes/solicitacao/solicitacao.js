@@ -426,6 +426,44 @@ router.put('/:id', (req, res) => {
   });
 });
 
+router.put('/status/:id', (req, res) => {
+  const id = req.params.id;
+  let { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({
+      message: 'O campo status é obrigatório'
+    });
+  }
+
+  // Validação do status
+  const statusOptions = ["Novo", "Lido", "Autorizado"];
+  if (!statusOptions.includes(status)) {
+    return res.status(400).json({
+      message: 'Status inválido. Os status possíveis são: Novo, Lido, Autorizado'
+    });
+  }
+
+  const sql = "UPDATE solicitacaoProd SET status = ? WHERE solicId = ?";
+  const values = [status, id];
+
+  db.query(sql, values, (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.affectedRows === 0) {
+      return res.status(404).json({
+        message: 'Solicitação não encontrada'
+      });
+    }
+    res.status(200).json({
+      message: 'Status atualizado com sucesso'
+    });
+  });
+});
+
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
   const sql = "DELETE FROM solicitacaoProd WHERE solicId = ?";
