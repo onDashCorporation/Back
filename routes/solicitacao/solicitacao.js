@@ -337,7 +337,7 @@ router.get('/tipoMovi/:tmId', (req, res) => {
 //     }
 //     res.status(200).json(data[0]);
 //   });
-// });
+
 
 router.get('/item/:solicId', (req, res) => {
   const solicId = req.params.solicId;
