@@ -702,7 +702,7 @@ router.get('/user/:userId', (req, res) => {
 // Pega uma a solicitação baseado no ID do tipo de movimentação
 router.get('/tipoMovi/:tmId', (req, res) => {
   const tmId = req.params.tmId;
-  const sql = "SELECT solicId, data, qtdEntrada, qtdSaida, fk_tipoMoviId, fk_usuarioId, fk_qtdItemId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_tipoMoviId = ?";
+  const sql = "SELECT fk_tipoMoviId, solicId, data, qtdEntrada, qtdSaida, fk_usuarioId, fk_qtdItemId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_tipoMoviId = ?";
   const values = [tmId];
   let qtdMovimetacao = 0
 
@@ -713,7 +713,7 @@ router.get('/tipoMovi/:tmId', (req, res) => {
       });
     }
 
-    qtdMovimetacao = data.length; // atualiza o contador com o número de resultados
+    qtdMovimetacao = data.length; 
     if (qtdMovimetacao === 0) {
       return res.status(404).json({
         message: 'Nenhuma solicitação encontrada para este usuário'
@@ -721,7 +721,7 @@ router.get('/tipoMovi/:tmId', (req, res) => {
     }
     res.status(200).json({
       movimetacoes: data,
-      countador: qtdMovimetacao // retorna o contador como parte da resposta
+      countador: qtdMovimetacao 
     });
   });
 });
