@@ -16,16 +16,15 @@ const express = require('express');
 
 const router = express.Router();
 
-const createDBConnection = require('../../db')
+const createDBConnection = require('../../db.js')
 const db = createDBConnection()
 
-const uploadS3 = require("../../config/upload-s3.js")
+const uploadS3 = require('../../config/upload-s3.js')
 const path = require('path');
 const multer = require('multer');
 
 
 
-router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
 router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
     const foto = req.file.filename
@@ -49,9 +48,9 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file ? req.file.filename : 'dft_foto.jpg'
 
-    if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
+    if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
@@ -111,7 +110,8 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
                 });
             }
 
-            const fk_categoriaId = result[0].new_fk_categoriaId;
+
+            const new_fk_categoriaId = result[0].cateId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
             const values = [foto.location, nome_item, qtdMin, new_fk_categoriaId];
