@@ -1,4 +1,13 @@
 node_modules
-# .env
 # ignora a pasta de database que contem as configurações do banco
 database
+.gitignore
+
+Dockerfile
+.dockerignore
+README.md
+img
+.github
+.git
+npm-debug.log
+.env
