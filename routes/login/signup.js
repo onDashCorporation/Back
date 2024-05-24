@@ -213,8 +213,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-// não funciona
-router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
+router.put('/:id',  multer(uploadS3).single("foto_usu"), (req, res) => {
     const id = req.params.id;
     const {
         usuNome,
@@ -222,9 +221,10 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto = req.file ? req.file.location : '../img/dft_foto.jpg'
+    const foto_usu = req.file ? req.file.location : ''
 
-    if (!usuNome || !email || !fk_depId || !foto) {
+    console.log(req.body)
+    if (!usuNome || !email || !fk_depId || !foto_usu) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         });
@@ -251,7 +251,7 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
             });
         }
         const new_fk_depId = parseInt(fk_depId)
-        if(!Number.isInteger(new_fk_depId)) {
+        if (!Number.isInteger(new_fk_depId)) {
             return res.status(400).json({
                 message: 'Insira o id do departamento como um número inteiro'
             });
@@ -271,32 +271,39 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
                 });
             }
 
-            const sql = "UPDATE usuarios SET usuNome =? , email =?, fk_cargoId =?, fk_depId =?, foto_usu=? WHERE usuId =?"
+            const sql = "UPDATE usuarios SET usuNome =? , email =?, senha=?, fk_cargoId =?, fk_depId =?, foto_usu=? WHERE usuId =?"
 
-            const values = [
-                usuNome,
-                email,
-                hash,
-                fk_cargoId,
-                fk_depId,
-                foto
-            ]
-
-            db.query(sql, values, (err, result) => {
-                if (err) {
-                    console.log(err)
-                    return res.json({
-                        Error: "Erro ao inserir dados no sistema",
-                    })
-                }
-                res.status(201).json({
-                    message: 'Dados inseridos no sistema com sucesso'
+            bcrypt.hash(req.body.senha.toString(), salt, (err, hash) => {
+                if (err) return res.json({
+                    Error: "Error no hashing de senha"
                 })
-            });
+
+                const values = [
+                    usuNome,
+                    email,
+                    hash,
+                    fk_cargoId,
+                    fk_depId,
+                    foto_usu,
+                    id
+                ]
+
+
+                db.query(sql, values, (err, result) => {
+                    if (err) {
+                        console.log(err)
+                        return res.json({
+                            Error: "Erro ao inserir dados no sistema",
+                        })
+                    }
+                    res.status(201).json({
+                        message: 'Dados inseridos no sistema com sucesso'
+                    })
+                });
+            })
         })
     })
 })
-
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
     const sql = "DELETE FROM usuarios WHERE usuId = ?";
