@@ -20,30 +20,19 @@ const router = express.Router();
 const createDBConnection = require('../../db')
 const db = createDBConnection()
 
+// tratamento de imagens
+const uploadS3 = require("../../config/upload-s3.js")
+const multer = require('multer');
+
+// criptografia
 const bcrypt = require('bcrypt')
 const salt = 10
 
-const multer = require('multer')
-const path = require('path')
-
-const storage = multer.diskStorage({
-    // destination: (req, file, cb) => {
-    //     cb(null,'')
-    // },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
-
-router.post('/upload', upload.single('foto_usu'), (req, res) => {
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
-    const foto_usu = req.file.filename
+    const foto = req.file.location
     const sql = "UPDATE usuarios SET foto_usu=?"
-    db.query(sql, [foto_usu], (err, result) => {
+    db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
             Message: "Error"
         })
@@ -53,10 +42,7 @@ router.post('/upload', upload.single('foto_usu'), (req, res) => {
     })
 })
 
-// const inserir = require('../../Querys/login/inserirDados')
-// const validar = require('../../Querys/login/validarEmail')
-
-router.post('/', upload.single('foto_usu'), (req, res) => {
+router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
         usuNome,
         email,
@@ -65,9 +51,10 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
         fk_depId
     } = req.body
 
-    const foto_padrao = '../img/dft_foto.jpg'
-    const foto_usu = req.file ? req.file.filename : foto_padrao
+    const foto_padrao = ''
+    const foto = req.file ? req.file.location : foto_padrao
 
+    console.log(foto)
     if (!usuNome || !email || !senha || !fk_depId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
@@ -172,9 +159,9 @@ router.post('/', upload.single('foto_usu'), (req, res) => {
                     usuNome,
                     email,
                     hash,
-                    fk_cargoId,
+                    // fk_cargoId,
                     fk_depId,
-                    foto_usu
+                    foto
                 ]
 
                 db.query(sql, values, (err, result) => {
@@ -226,7 +213,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', upload.single('foto_usu'), (req, res) => {
+router.put('/:id',  multer(uploadS3).single("foto_usu"), (req, res) => {
     const id = req.params.id;
     const {
         usuNome,
@@ -234,8 +221,9 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
         fk_cargoId,
         fk_depId
     } = req.body
-    const foto_usu = req.file ? req.file.filename : '../img/dft_foto.jpg'
+    const foto_usu = req.file ? req.file.location : ''
 
+    console.log(req.body)
     if (!usuNome || !email || !fk_depId || !foto_usu) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
@@ -263,7 +251,7 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
             });
         }
         const new_fk_depId = parseInt(fk_depId)
-        if(!Number.isInteger(new_fk_depId)) {
+        if (!Number.isInteger(new_fk_depId)) {
             return res.status(400).json({
                 message: 'Insira o id do departamento como um número inteiro'
             });
@@ -283,32 +271,39 @@ router.put('/:id', upload.single('foto_usu'), (req, res) => {
                 });
             }
 
-            const sql = "UPDATE usuarios SET usuNome =? , email =?, fk_cargoId =?, fk_depId =?, foto_usu=? WHERE usuId =?"
+            const sql = "UPDATE usuarios SET usuNome =? , email =?, senha=?, fk_cargoId =?, fk_depId =?, foto_usu=? WHERE usuId =?"
 
-            const values = [
-                usuNome,
-                email,
-                hash,
-                fk_cargoId,
-                fk_depId,
-                foto_usu.filename
-            ]
-
-            db.query(sql, values, (err, result) => {
-                if (err) {
-                    console.log(err)
-                    return res.json({
-                        Error: "Erro ao inserir dados no sistema",
-                    })
-                }
-                res.status(201).json({
-                    message: 'Dados inseridos no sistema com sucesso'
+            bcrypt.hash(req.body.senha.toString(), salt, (err, hash) => {
+                if (err) return res.json({
+                    Error: "Error no hashing de senha"
                 })
-            });
+
+                const values = [
+                    usuNome,
+                    email,
+                    hash,
+                    fk_cargoId,
+                    fk_depId,
+                    foto_usu,
+                    id
+                ]
+
+
+                db.query(sql, values, (err, result) => {
+                    if (err) {
+                        console.log(err)
+                        return res.json({
+                            Error: "Erro ao inserir dados no sistema",
+                        })
+                    }
+                    res.status(201).json({
+                        message: 'Dados inseridos no sistema com sucesso'
+                    })
+                });
+            })
         })
     })
 })
-
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
     const sql = "DELETE FROM usuarios WHERE usuId = ?";
@@ -330,4 +325,5 @@ router.delete('/:id', (req, res) => {
         });
     });
 });
+
 module.exports = router;

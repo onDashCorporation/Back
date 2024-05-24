@@ -16,30 +16,18 @@ const express = require('express');
 
 const router = express.Router();
 
-const createDBConnection = require('../../db')
+const createDBConnection = require('../../db.js')
 const db = createDBConnection()
 
+const uploadS3 = require('../../config/upload-s3.js')
+const path = require('path');
+const multer = require('multer');
 
 
-const multer = require('multer')
-const path = require('path')
 
-const storage = multer.diskStorage({
-    destination: (req,file,cb) => {
-        cb(null,"../../img")
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
-    }
-})
-
-const upload = multer({
-    storage: storage
-})
-
-router.post('/upload', upload.single('foto'), (req, res) => {
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
-    const foto = req.file.filename
+    const foto = req.file.location
     const sql = "UPDATE cadastroItem SET foto=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
@@ -51,15 +39,17 @@ router.post('/upload', upload.single('foto'), (req, res) => {
     })
 })
 
-router.post('/', upload.single('foto'), (req, res) => {
+
+
+router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
         cadItemId,
         nome_item,
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file ? req.file.filename : 'dft_foto.jpg'
-
+    const foto = req.file ? req.file.location : ''
+    
     if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
@@ -177,7 +167,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', upload.single('foto'), (req, res) => {
+router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     const id = req.params.id;
     const {
         cadItemId,
@@ -185,7 +175,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file.location
 
     if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
@@ -230,10 +220,8 @@ router.put('/:id', upload.single('foto'), (req, res) => {
             });
         }
 
-        const categoriaId = result[0].categoriaId;
-
         const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
-        const values = [foto.filename, nome_item, qtdMin, categoriaId, id];
+        const values = [foto, nome_item, qtdMin, fk_categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
