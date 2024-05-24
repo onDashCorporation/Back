@@ -100,22 +100,42 @@ router.post("/", async (req, res) => {
   }
 
   // ALTERAÇÂO
+  // if (!fk_cadItemId) {
+  //   const getCadItemId = "SELECT fk_cadItemId FROM qtditem WHERE qtdItemId = ?";
+  //   db.query(getCadItemId, [fk_cadItemId], (err, result) => {
+  //     if (err) {
+  //       return res.status(500).json({
+  //         error: err.message
+  //       });
+  //     }
+  //     if (result.length === 0) {
+  //       return res.status(400).json({
+  //         message: "Item inválido (qtd)"
+  //       });
+  //     }
+  //     fk_cadItemId = result[0].fk_cadItemId;
+  //   });
+  // }
+
   if (!fk_cadItemId) {
-    const getCadItemId = "SELECT fk_cadItemId FROM qtditem WHERE qtdItemId = ?";
-    b.query(getCadItemId, [fk_qtdItemId], (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          error: err.message
-        });
-      }
-      if (result.length === 0) {
+    try {
+      const getCadItemId = "SELECT fk_cadItemId FROM qtditem WHERE qtdItemId = ?";
+      const [rows] = await db.promise().query(getCadItemId, [fk_qtdItemId]);
+      if (rows.length === 0) {
         return res.status(400).json({
           message: "Item inválido (qtd)"
         });
       }
-      fk_cadItemId = result[0].fk_cadItemId;
-    });
+      fk_cadItemId = rows[0].fk_cadItemId;
+    } catch (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
   }
+
+  console.log(fk_cadItemId)
+  console.log(typeof fk_cadItemId)
   // FIM DA ALTERAÇÂO
   
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
