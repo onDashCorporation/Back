@@ -338,8 +338,46 @@ router.get('/tipoMovi/:tmId', (req, res) => {
 //     res.status(200).json(data[0]);
 //   });
 
-
+// Pega o item (cadastro e quantidade) baseado no id da solicitação
 router.get('/item/:solicId', (req, res) => {
+  const solicId = req.params.solicId;
+  const sql = `
+    SELECT s.solicId, 
+            s.fk_tipoMoviId, 
+            s.fk_usuarioId, 
+            s.fk_qtdItemId,
+            c.fk_categoriaId,
+            c.cadItemId,
+            c.nome_item,   
+            cat.nome_categoria,
+            c.qtdMin,
+            s.qtdEntrada, 
+            s.qtdSaida, 
+            s.status, 
+            s.valor_entrada,
+            s.data
+    FROM solicitacaoProd s
+    INNER JOIN qtditem q ON s.fk_qtdItemId = q.qtdItemId
+    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
+    WHERE s.solicId = ?`;
+
+  db.query(sql, [solicId], (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({
+        message: 'Solicitação não encontrada'
+      });
+    }
+    res.status(200).json(data);
+  });
+});
+
+router.get('/teste/:solicId', (req, res) => {
   const solicId = req.params.solicId;
   const sql = `
     SELECT s.solicId, 
