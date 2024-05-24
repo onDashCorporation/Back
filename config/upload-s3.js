@@ -32,6 +32,7 @@ module.exports = {
       "image/pjpeg",
       "image/png",
       "image/gif",
+      "application/octet-stream"
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
