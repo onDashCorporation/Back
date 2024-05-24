@@ -51,9 +51,10 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
         fk_depId
     } = req.body
 
-    const foto_padrao = '../img/dft_foto.jpg'
+    const foto_padrao = ''
     const foto = req.file ? req.file.location : foto_padrao
 
+    console.log(foto)
     if (!usuNome || !email || !senha || !fk_depId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
@@ -158,7 +159,7 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
                     usuNome,
                     email,
                     hash,
-                    fk_cargoId,
+                    // fk_cargoId,
                     fk_depId,
                     foto
                 ]
@@ -212,6 +213,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
+// não funciona
 router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     const id = req.params.id;
     const {
@@ -222,7 +224,7 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     } = req.body
     const foto = req.file ? req.file.location : '../img/dft_foto.jpg'
 
-    if (!usuNome || !email || !fk_depId || !foto_usu) {
+    if (!usuNome || !email || !fk_depId || !foto) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         });

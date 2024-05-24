@@ -27,7 +27,7 @@ const multer = require('multer');
 
 router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
-    const foto = req.file.filename
+    const foto = req.file.location
     const sql = "UPDATE cadastroItem SET foto=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
@@ -48,8 +48,8 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file ? req.file.filename : 'dft_foto.jpg'
-
+    const foto = req.file ? req.file.location : ''
+    
     if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
@@ -114,7 +114,7 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
             const new_fk_categoriaId = result[0].cateId;
 
             const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
-            const values = [foto.location, nome_item, qtdMin, new_fk_categoriaId];
+            const values = [foto, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
@@ -175,7 +175,7 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
         qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file.location
 
     if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
@@ -220,10 +220,8 @@ router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
             });
         }
 
-        const categoriaId = result[0].categoriaId;
-
         const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
-        const values = [foto.location, nome_item, qtdMin, categoriaId, id];
+        const values = [foto, nome_item, qtdMin, fk_categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
