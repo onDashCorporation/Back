@@ -100,6 +100,34 @@ router.get('/', (req, res) => {
     });
 });
 
+// NOVA ROTA
+router.get('/cadItem', (req, res) => {
+    const sql =  `
+    SELECT,
+    c.foto,
+    c.nome_item,
+    c.qtdMin,
+    c.fk_categoriaId,
+    q.qtdItemId, 
+    q.fk_cadItemId, 
+    q.qtde, 
+    q.valorItem
+    FROM qtditem q
+    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    WHERE q.qtdItemId = ?`;
+    const values = [req.body.qtdItemId, req.body.fk_cadItemId, req.body.fk_qtde, req.body.fk_valorItem, req.body.cadItemId, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
+
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        } else {
+            res.status(201).json(data);
+        }
+    });
+});
+
 router.get('/:id', (req, res) => {
     const id = req.params.id;
     const sql = "SELECT qtdItemId, fk_cadItemId, qtde, valorItem FROM qtditem WHERE qtdItemId = ?";

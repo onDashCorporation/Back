@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
   } = req.body;
 
 
-  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
+  if (!fk_usuarioId || !fk_qtdItemId) {
     return res.status(400).json({
       message: 'Todos os campos são obrigatórios!'
     })
@@ -98,6 +98,26 @@ router.post("/", async (req, res) => {
   if (qtdSaida > 0) {
     fk_tipoMoviId = 2
   }
+
+  // ALTERAÇÂO
+  if (!fk_cadItemId) {
+    const getCadItemId = "SELECT fk_cadItemId FROM qtditem WHERE qtdItemId = ?";
+    b.query(getCadItemId, [fk_qtdItemId], (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          error: err.message
+        });
+      }
+      if (result.length === 0) {
+        return res.status(400).json({
+          message: "Item inválido (qtd)"
+        });
+      }
+      fk_cadItemId = result[0].fk_cadItemId;
+    });
+  }
+  // FIM DA ALTERAÇÂO
+  
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
   const new_fk_usuarioId = parseInt(fk_usuarioId)
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
