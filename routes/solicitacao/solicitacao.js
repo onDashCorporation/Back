@@ -214,6 +214,418 @@ dotenv.config()
 //   })
 // })
 
+router.post("/", async (req, res) => {
+  let {
+    qtdEntrada,
+    qtdSaida,
+    fk_tipoMoviId,
+    fk_usuarioId,
+    fk_qtdItemId,
+    fk_cadItemId,
+    status,
+    valor_entrada
+  } = req.body;
+
+  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
+    return res.status(400).json({
+      message: 'Todos os campos são obrigatórios!'
+    })
+  }
+
+  if (!Array.isArray(fk_qtdItemId) || !Array.isArray(fk_cadItemId)) {
+    return res.status(400).json({
+      message: 'fk_qtdItemId e fk_cadItemId devem ser arrays'
+    });
+  }
+
+  if (fk_qtdItemId.length !== fk_cadItemId.length) {
+    return res.status(400).json({
+      message: 'fk_qtdItemId e fk_cadItemId devem ter o mesmo comprimento'
+    });
+  }
+
+  if (!status) {
+    status = "Novo"
+  } else {
+    status = req.body.status;
+  }
+
+  const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
+
+  if (!status.match(statusPattern)) {
+    return res.status(400).json({
+      message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula'
+    })
+  }
+  //  status possiveis: lido, novo e autorizado
+  if (status != "Lido" && status != "Autorizado" && status != "Novo") {
+    return res.status(400).json({
+      message: 'Status inválido'
+    })
+  }
+
+  if (!qtdEntrada && !qtdSaida) {
+    return res.status(400).json({
+      message: 'Quantidade obrigatória'
+    })
+  }
+
+  if (qtdEntrada && qtdSaida) {
+    return res.status(400).json({
+      message: 'Apenas uma quantidade deve ser especificada!'
+    })
+  }
+  if (qtdEntrada && !qtdSaida) {
+    qtdSaida = 0
+  }
+
+  if (qtdSaida && !qtdEntrada) {
+    qtdEntrada = 0
+    valor_entrada = 0
+  }
+
+  if (qtdEntrada > 0) {
+    fk_tipoMoviId = 1
+    valor_entrada > 0
+  }
+
+  if (qtdSaida > 0) {
+    fk_tipoMoviId = 2
+  }
+  const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
+  const new_fk_usuarioId = parseInt(fk_usuarioId)
+
+  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId)) {
+    return res.status(400).json({
+      message: 'Insira os IDs como um número inteiro'
+    });
+  }
+
+  const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
+  db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    const usuarioExists = result[0].count > 0;
+    if (!usuarioExists) {
+      return res.status(400).json({
+        message: "Usuário invalido"
+      });
+    }
+
+    for (let i = 0; i < fk_qtdItemId.length; i++) {
+      const validationQtdProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE qtdItemId = ?";
+      db.query(validationQtdProduto, [fk_qtdItemId[i]], (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            error: err.message
+          });
+        }
+        const qtdProdutoExists = result[0].count > 0;
+        if (!qtdProdutoExists) {
+          return res.status(400).json({
+            message: `Item inválido (qtd) - ID: ${fk_qtdItemId[i]}`
+          });
+        }
+
+        const validationCadProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ?";
+        db.query(validationCadProduto, [fk_cadItemId[i]], (err, result) => {
+          if (err) {
+            return res.status(500).json({
+              error: err.message
+            });
+          }
+          const cadProdutoExists = result[0].count > 0;
+          if (!cadProdutoExists) {
+            return res.status(400).json({
+              message: `Item inválido (cad) - ID: ${fk_cadItemId[i]}`
+            });
+          }
+
+          const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ? AND qtdItemId = ?";
+          db.query(validationProduto, [fk_cadItemId[i], fk_qtdItemId[i]], (err, result) => {
+            if (err) {
+              return res.status(500).json({
+                error: err.message
+              });
+            }
+            const ProdutoExists = result[0].count > 0;
+            if (!ProdutoExists) {
+              return res.status(400).json({
+                message: "Item inválido - O cadastro de item não corresponde a quantidade"
+              });
+            }
+
+            const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
+            if (validationValorEntrada) {
+              return res.status(400).json({
+                message: "Valor Inválido"
+              });
+            }
+
+//             const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+// const values = [
+//   today,
+//   qtdEntrada,
+//   qtdSaida,
+//   new_fk_tipoMoviId,
+//   new_fk_usuarioId,
+//   fk_qtdItemId.join(','),
+//   fk_cadItemId.join(','),
+//   status,
+//   valor_entrada
+// ];
+
+const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+const values = [
+  today,
+  qtdEntrada,
+  qtdSaida,
+  new_fk_tipoMoviId,
+  new_fk_usuarioId,
+  JSON.stringify(fk_qtdItemId),
+  JSON.stringify(fk_cadItemId),
+  status,
+  valor_entrada
+];
+
+            db.query(sql, values, (err, data) => {
+              if (err) {
+                return res.status(500).json({
+                  error: err.message
+                });
+              } else {
+                // res.status(201).json({
+                //   message: 'Dados inseridos no sistema com sucesso'
+                // })
+                axios.post(process.env.CLIENT_URL + "/controle", {
+                    fk_solicId: data.insertId
+                  })
+                  .then(response => {
+                    console.log("Dados inseridos no controle com sucesso");
+                  })
+                  .catch(error => {
+                    console.error("Erro ao inserir dados no controle:", error);
+                  });
+
+                res.status(201).json({
+                  message: 'Dados inseridos no sistema com sucesso'
+                });
+              }
+            });
+          });
+        });
+      });
+    }
+  });
+});
+
+// router.post("/", async (req, res) => {
+//   let {
+//     qtdEntrada,
+//     qtdSaida,
+//     fk_tipoMoviId,
+//     fk_usuarioId,
+//     fk_qtdItemId,
+//     fk_cadItemId,
+//     status,
+//     valor_entrada
+//   } = req.body;
+
+//   if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
+//     return res.status(400).json({
+//       message: 'Todos os campos são obrigatórios!'
+//     });
+//   }
+
+//   if (!Array.isArray(fk_qtdItemId) || !Array.isArray(fk_cadItemId)) {
+//     return res.status(400).json({
+//       message: 'fk_qtdItemId e fk_cadItemId devem ser arrays'
+//     });
+//   }
+
+//   if (fk_qtdItemId.length !== fk_cadItemId.length) {
+//     return res.status(400).json({
+//       message: 'fk_qtdItemId e fk_cadItemId devem ter o mesmo comprimento'
+//     });
+//   }
+
+//   if (!status) {
+//     status = "Novo";
+//   } else {
+//     status = req.body.status;
+//   }
+
+//   const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiúscula
+
+//   if (!status.match(statusPattern)) {
+//     return res.status(400).json({
+//       message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiúscula'
+//     });
+//   }
+
+//   //  status possíveis: lido, novo e autorizado
+//   if (status !== "Lido" && status !== "Autorizado" && status !== "Novo") {
+//     return res.status(400).json({
+//       message: 'Status inválido'
+//     });
+//   }
+
+//   if (!qtdEntrada && !qtdSaida) {
+//     return res.status(400).json({
+//       message: 'Quantidade obrigatória'
+//     });
+//   }
+
+//   if (qtdEntrada && qtdSaida) {
+//     return res.status(400).json({
+//       message: 'Apenas uma quantidade deve ser especificada!'
+//     });
+//   }
+
+//   if (qtdEntrada && !qtdSaida) {
+//     qtdSaida = 0;
+//   }
+
+//   if (qtdSaida && !qtdEntrada) {
+//     qtdEntrada = 0;
+//     valor_entrada = 0;
+//   }
+
+//   if (qtdEntrada > 0) {
+//     fk_tipoMoviId = 1;
+//     valor_entrada > 0;
+//   }
+
+//   if (qtdSaida > 0) {
+//     fk_tipoMoviId = 2;
+//   }
+
+//   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId);
+//   const new_fk_usuarioId = parseInt(fk_usuarioId);
+
+//   if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId)) {
+//     return res.status(400).json({
+//       message: 'Insira os IDs como um número inteiro'
+//     });
+//   }
+
+//   fk_qtdItemId = fk_qtdItemId.map(id => parseInt(id));
+//   fk_cadItemId = fk_cadItemId.map(id => parseInt(id));
+
+//   for (let id of fk_qtdItemId) {
+//     if (!Number.isInteger(id)) {
+//       return res.status(400).json({
+//         message: 'Insira os IDs de quantidade como números inteiros'
+//       });
+//     }
+//   }
+
+//   for (let id of fk_cadItemId) {
+//     if (!Number.isInteger(id)) {
+//       return res.status(400).json({
+//         message: 'Insira os IDs de cadastro como números inteiros'
+//       });
+//     }
+//   }
+
+//   const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
+//   db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
+//     if (err) {
+//       return res.status(500).json({
+//         error: err.message
+//       });
+//     }
+//     const usuarioExists = result[0].count > 0;
+//     if (!usuarioExists) {
+//       return res.status(400).json({
+//         message: "Usuário inválido"
+//       });
+//     }
+
+//     const validQtdItemIds = [];
+//     const validCadItemIds = [];
+
+//     fk_qtdItemId.forEach((qtdItemId, index) => {
+//       if (Number.isInteger(qtdItemId) && Number.isInteger(fk_cadItemId[index])) {
+//         validQtdItemIds.push(qtdItemId);
+//         validCadItemIds.push(fk_cadItemId[index]);
+//       }
+//     });
+
+//     if (validQtdItemIds.length === 0) {
+//       return res.status(400).json({
+//         message: 'Nenhum ID de quantidade válido fornecido'
+//       });
+//     }
+
+//     // Realizar a validação e inserção em uma única consulta
+//     const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
+//     db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
+//       if (err) {
+//         return res.status(500).json({
+//           error: err.message
+//         });
+//       }
+//       const usuarioExists = result[0].count > 0;
+//       if (!usuarioExists) {
+//         return res.status(400).json({
+//           message: "Usuário inválido"
+//         });
+//       }
+
+//       // Consulta de validação e inserção combinadas
+//       let sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) ";
+//       sql += "SELECT ?, ?, ?, ?, ?, qtdItemId, fk_cadItemId, ?, ? FROM (";
+//       sql += "  SELECT qtdItemId, fk_cadItemId FROM qtditem q ";
+//       sql += "  INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId ";
+//       sql += "  WHERE qtdItemId IN (?) AND fk_cadItemId IN (?)";
+//       sql += ") AS subquery";
+
+//       const today = new Date();
+//       const values = [
+//         today,
+//         qtdEntrada,
+//         qtdSaida,
+//         new_fk_tipoMoviId,
+//         new_fk_usuarioId,
+//         status,
+//         valor_entrada,
+//         validQtdItemIds,
+//         validCadItemIds
+//       ];
+
+//       db.query(sql, values, (err, data) => {
+//         if (err) {
+//           return res.status(500).json({
+//             error: err.message
+//           });
+//         } else {
+//           axios.post(process.env.CLIENT_URL + "/controle", {
+//               fk_solicId: data.insertId
+//             })
+//             .then(response => {
+//               res.status(201).json({
+//                 message: "Solicitação inserida com sucesso",
+//                 id: data.insertId
+//               });
+//             })
+//             .catch(err => {
+//               console.log(err);
+//               res.status(500).json({
+//                 error: "Ocorreu um erro ao notificar o cliente"
+//               });
+//             });
+//         }
+//       });
+//     });
+//   });
+// });
+
 // router.post("/", async (req, res) => {
 //   let {
 //       qtdEntrada,
@@ -437,208 +849,228 @@ dotenv.config()
 //   });
 // });
 
-router.post("/", async (req, res) => {
-  let {
-    qtdEntrada,
-    qtdSaida,
-    fk_tipoMoviId,
-    fk_usuarioId,
-    fk_qtdItemId,
-    fk_cadItemId,
-    status,
-    valor_entrada
-  } = req.body;
+// router.post("/", async (req, res) => {
+//   let {
+//       qtdEntrada,
+//       qtdSaida,
+//       fk_tipoMoviId,
+//       fk_usuarioId,
+//       fk_qtdItemId, 
+//       fk_cadItemId, 
+//       status,
+//       valor_entrada
+//   } = req.body;
 
-  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
-    return res.status(400).json({
-      message: 'Todos os campos são obrigatórios!'
-    });
-  }
+//   if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
+//       return res.status(400).json({
+//           message: 'Todos os campos são obrigatórios!'
+//       });
+//   }
 
-  if (!Array.isArray(fk_qtdItemId) || !Array.isArray(fk_cadItemId)) {
-    return res.status(400).json({
-      message: 'fk_qtdItemId e fk_cadItemId devem ser arrays'
-    });
-  }
+//   if (!Array.isArray(fk_qtdItemId) || !Array.isArray(fk_cadItemId)) {
+//       return res.status(400).json({
+//           message: 'fk_qtdItemId e fk_cadItemId devem ser arrays'
+//       });
+//   }
 
-  if (fk_qtdItemId.length !== fk_cadItemId.length) {
-    return res.status(400).json({
-      message: 'fk_qtdItemId e fk_cadItemId devem ter o mesmo comprimento'
-    });
-  }
+//   if (fk_qtdItemId.length !== fk_cadItemId.length) {
+//       return res.status(400).json({
+//           message: 'fk_qtdItemId e fk_cadItemId devem ter o mesmo comprimento'
+//       });
+//   }
 
-  if (!status) {
-    status = "Novo";
-  } else {
-    status = req.body.status;
-  }
+//   if (!status) {
+//       status = "Novo";
+//   } else {
+//       status = req.body.status;
+//   }
 
-  const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiúscula
+//   const statusPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiúscula
 
-  if (!status.match(statusPattern)) {
-    return res.status(400).json({
-      message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiúscula'
-    });
-  }
+//   if (!status.match(statusPattern)) {
+//       return res.status(400).json({
+//           message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiúscula'
+//       });
+//   }
 
-  //  status possíveis: lido, novo e autorizado
-  if (status !== "Lido" && status !== "Autorizado" && status !== "Novo") {
-    return res.status(400).json({
-      message: 'Status inválido'
-    });
-  }
+//   // status possíveis: lido, novo e autorizado
+//   if (status !== "Lido" && status !== "Autorizado" && status !== "Novo") {
+//       return res.status(400).json({
+//           message: 'Status inválido'
+//       });
+//   }
 
-  if (!qtdEntrada && !qtdSaida) {
-    return res.status(400).json({
-      message: 'Quantidade obrigatória'
-    });
-  }
+//   if (!qtdEntrada && !qtdSaida) {
+//       return res.status(400).json({
+//           message: 'Quantidade obrigatória'
+//       });
+//   }
 
-  if (qtdEntrada && qtdSaida) {
-    return res.status(400).json({
-      message: 'Apenas uma quantidade deve ser especificada!'
-    });
-  }
+//   if (qtdEntrada && qtdSaida) {
+//       return res.status(400).json({
+//           message: 'Apenas uma quantidade deve ser especificada!'
+//       });
+//   }
 
-  if (qtdEntrada && !qtdSaida) {
-    qtdSaida = 0;
-  }
+//   if (qtdEntrada && !qtdSaida) {
+//       qtdSaida = 0;
+//   }
 
-  if (qtdSaida && !qtdEntrada) {
-    qtdEntrada = 0;
-    valor_entrada = 0;
-  }
+//   if (qtdSaida && !qtdEntrada) {
+//       qtdEntrada = 0;
+//       valor_entrada = 0;
+//   }
 
-  if (qtdEntrada > 0) {
-    fk_tipoMoviId = 1;
-    valor_entrada > 0;
-  }
+//   if (qtdEntrada > 0) {
+//       fk_tipoMoviId = 1;
+//       valor_entrada > 0;
+//   }
 
-  if (qtdSaida > 0) {
-    fk_tipoMoviId = 2;
-  }
+//   if (qtdSaida > 0) {
+//       fk_tipoMoviId = 2;
+//   }
 
-  const new_fk_tipoMoviId = parseInt(fk_tipoMoviId);
-  const new_fk_usuarioId = parseInt(fk_usuarioId);
+//   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId);
+//   const new_fk_usuarioId = parseInt(fk_usuarioId);
 
-  if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId)) {
-    return res.status(400).json({
-      message: 'Insira os IDs como um número inteiro'
-    });
-  }
+//   if (!Number.isInteger(new_fk_tipoMoviId) || !Number.isInteger(new_fk_usuarioId)) {
+//       return res.status(400).json({
+//           message: 'Insira os IDs como um número inteiro'
+//       });
+//   }
 
-  fk_qtdItemId = fk_qtdItemId.map(id => parseInt(id));
-  fk_cadItemId = fk_cadItemId.map(id => parseInt(id));
+//   // Ensure all fk_qtdItemId and fk_cadItemId are integers
+//   fk_qtdItemId = fk_qtdItemId.map(id => parseInt(id));
+//   fk_cadItemId = fk_cadItemId.map(id => parseInt(id));
 
-  for (let id of fk_qtdItemId) {
-    if (!Number.isInteger(id)) {
-      return res.status(400).json({
-        message: 'Insira os IDs de quantidade como números inteiros'
-      });
-    }
-  }
+//   for (let id of fk_qtdItemId) {
+//       if (!Number.isInteger(id)) {
+//          return res.status(400).json({
+//               message: 'Insira os IDs de quantidade como números inteiros'
+//           });
+//       }
+//   }
 
-  for (let id of fk_cadItemId) {
-    if (!Number.isInteger(id)) {
-      return res.status(400).json({
-        message: 'Insira os IDs de cadastro como números inteiros'
-      });
-    }
-  }
+//   for (let id of fk_cadItemId) {
+//       if (!Number.isInteger(id)) {
+//           return res.status(400).json({
+//               message: 'Insira os IDs de cadastro como números inteiros'
+//           });
+//       }
+//   }
 
-  const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
-  db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        error: err.message
-      });
-    }
-    const usuarioExists = result[0].count > 0;
-    if (!usuarioExists) {
-      return res.status(400).json({
-        message: "Usuário inválido"
-      });
-    }
+//   const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
+//   db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
+//       if (err) {
+//           return res.status(500).json({
+//               error: err.message
+//           });
+//       }
+//       const usuarioExists = result[0].count > 0;
+//       if (!usuarioExists) {
+//           return res.status(400).json({
+//               message: "Usuário inválido"
+//           });
+//       }
 
-    const validQtdItemIds = [];
-    const validCadItemIds = [];
+//       fk_qtdItemId.forEach((qtdItemId, index) => {
+//           const cadItemId = fk_cadItemId[index];
 
-    fk_qtdItemId.forEach((qtdItemId, index) => {
-      if (Number.isInteger(qtdItemId) && Number.isInteger(fk_cadItemId[index])) {
-        validQtdItemIds.push(qtdItemId);
-        validCadItemIds.push(fk_cadItemId[index]);
-      }
-    });
+//           const validationCadProduto = "SELECT COUNT(*) AS count FROM cadastroItem WHERE cadItemId = ?";
+//           db.query(validationCadProduto, [cadItemId], (err, result) => {
+//               if (err) {
+//                   return res.status(500).json({
+//                       error: err.message
+//                   });
+//               }
+//               const cadProdutoExists = result[0].count > 0;
+//               if (!cadProdutoExists) {
+//                   return res.status(400).json({
+//                       message: `Item inválido (cad) - ID: ${cadItemId}`
+//                   });
+//               }
 
-    if (validQtdItemIds.length === 0) {
-      return res.status(400).json({
-        message: 'Nenhum ID de quantidade válido fornecido'
-      });
-    }
+//               const validationQtdProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE qtdItemId = ?";
+//               db.query(validationQtdProduto, [qtdItemId], (err, result) => {
+//                   if (err) {
+//                       return res.status(500).json({
+//                           error: err.message
+//                       });
+//                   }
+//                   const qtdProdutoExists = result[0].count > 0;
+//                   if (!qtdProdutoExists) {
+//                       return res.status(400).json({
+//                           message: `Item inválido (qtd) - ID: ${qtdItemId}`
+//                       });
+//                   }
 
-    // Realizar a validação e inserção em uma única consulta
-    const validationUsuario = "SELECT COUNT(*) AS count FROM usuarios WHERE usuId = ?";
-    db.query(validationUsuario, [new_fk_usuarioId], (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          error: err.message
-        });
-      }
-      const usuarioExists = result[0].count > 0;
-      if (!usuarioExists) {
-        return res.status(400).json({
-          message: "Usuário inválido"
-        });
-      }
+//                   const validationProduto = "SELECT COUNT(*) AS count FROM qtditem WHERE fk_cadItemId = ? AND qtdItemId = ?";
+//                   db.query(validationProduto, [cadItemId, qtdItemId], (err, result) => {
+//                       if (err) {
+//                           return res.status(500).json({
+//                               error: err.message
+//                           });
+//                       }
+//                       const ProdutoExists = result[0].count > 0;
+//                       if (!ProdutoExists) {
+//                           return res.status(400).json({
+//                               message: `Item inválido - O cadastro de item não corresponde à quantidade - ID: ${cadItemId} e ${qtdItemId}`
+//                           });
+//                       }
 
-      // Consulta de validação e inserção combinadas
-      let sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, `fk_qtdItemId`, `fk_cadItemId`, `status`, `valor_entrada`) ";
-      sql += "SELECT ?, ?, ?, ?, ?, qtdItemId, fk_cadItemId, ?, ? FROM (";
-      sql += "  SELECT qtdItemId, fk_cadItemId FROM qtditem q ";
-      sql += "  INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId ";
-      sql += "  WHERE qtdItemId IN (?) AND fk_cadItemId IN (?)";
-      sql += ") AS subquery";
+//                       const validationValorEntrada = qtdEntrada > 0 && valor_entrada <= 0;
+//                       if (validationValorEntrada) {
+//                           return res.status(400).json({
+//                               message: "Valor inválido"
+//                           });
+//                       }
 
-      const today = new Date();
-      const values = [
-        today,
-        qtdEntrada,
-        qtdSaida,
-        new_fk_tipoMoviId,
-        new_fk_usuarioId,
-        status,
-        valor_entrada,
-        validQtdItemIds,
-        validCadItemIds
-      ];
+//                       const sql = "INSERT INTO solicitacaoProd (`data`, `qtdEntrada`,`qtdSaida`, `fk_tipoMoviId`,`fk_usuarioId`, JSON_EXTRACT(`fk_qtdItemId`, '$[%d]'), JSON_EXTRACT(`fk_cadItemId`, '$[%d]'), `status`, `valor_entrada`) VALUES (?, ?, ?, ?, ?, JSON_EXTRACT(?, '$[%d]'), JSON_EXTRACT(?, '$[%d]'), ?, ?)";
 
-      db.query(sql, values, (err, data) => {
-        if (err) {
-          return res.status(500).json({
-            error: err.message
-          });
-        } else {
-          axios.post(process.env.CLIENT_URL + "/controle", {
-              fk_solicId: data.insertId
-            })
-            .then(response => {
-              res.status(201).json({
-                message: "Solicitação inserida com sucesso",
-                id: data.insertId
-              });
-            })
-            .catch(err => {
-              console.log(err);
-              res.status(500).json({
-                error: "Ocorreu um erro ao notificar o cliente"
-              });
-            });
-        }
-      });
-    });
-  });
-});
+//                       // Assuming `today` is defined somewhere in your code
+//                       const today = new Date(); // Define it here if it's not defined elsewhere
+//                       const values = [
+//                           today,
+//                           qtdEntrada,
+//                           qtdSaida,
+//                           new_fk_tipoMoviId,
+//                           new_fk_usuarioId,
+//                           index,
+//                           index,
+//                           status,
+//                           valor_entrada
+//                       ];
 
+//                       db.query(sql, values, (err, data) => {
+//                           if (err) {
+//                               return res.status(500).json({
+//                                   error: err.message
+//                               });
+//                           } else {
+//                               axios.post(process.env.CLIENT_URL + "/controle", {
+//                                   fk_solicId: data.insertId
+//                               })
+//                               .then(response => {
+//                                   console.log("Dados inseridos no controle com sucesso");
+//                               })
+//                               .catch(error => {
+//                                   console.error("Erro ao inserir dados no controle:", error);
+//                               });
+
+//                               // Send response only after all insertions
+//                               if (index === fk_qtdItemId.length - 1) {
+//                                   res.status(201).json({
+//                                       message: 'Dados inseridos no sistema com sucesso'
+//                                   });
+//                               }
+//                           }
+//                       });
+//                   });
+//               });
+//           });
+//       });
+//   });
+// });
 
 // Pega todas as solicitações
 router.get('/', (req, res) => {
@@ -727,6 +1159,44 @@ router.get('/tipoMovi/:tmId', (req, res) => {
 });
 
 // Pega o item (cadastro e quantidade) baseado no id da solicitação
+// router.get('/item/:solicId', (req, res) => {
+//   const solicId = req.params.solicId;
+//   const sql = `
+//     SELECT s.solicId, 
+//             s.fk_tipoMoviId, 
+//             s.fk_usuarioId, 
+//             s.fk_qtdItemId,
+//             c.fk_categoriaId,
+//             c.cadItemId,
+//             c.nome_item,   
+//             cat.nome_categoria,
+//             c.qtdMin,
+//             s.qtdEntrada, 
+//             s.qtdSaida, 
+//             s.status, 
+//             s.valor_entrada,
+//             s.data
+//     FROM solicitacaoProd s
+//     INNER JOIN qtditem q ON s.fk_qtdItemId = q.qtdItemId
+//     INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+//     INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
+//     WHERE s.solicId = ?`;
+
+//   db.query(sql, [solicId], (err, data) => {
+//     if (err) {
+//       return res.status(500).json({
+//         error: err.message
+//       });
+//     }
+//     if (data.length === 0) {
+//       return res.status(404).json({
+//         message: 'Solicitação não encontrada'
+//       });
+//     }
+//     res.status(200).json(data[0]);
+//   });
+
+// Pega o item (cadastro e quantidade) baseado no id da solicitação
 router.get('/item/:solicId', (req, res) => {
   const solicId = req.params.solicId;
   const sql = `
@@ -761,9 +1231,48 @@ router.get('/item/:solicId', (req, res) => {
         message: 'Solicitação não encontrada'
       });
     }
-    res.status(200).json(data[0]);
+    res.status(200).json(data);
   });
 });
+
+router.get('/teste/:solicId', (req, res) => {
+  const solicId = req.params.solicId;
+  const sql = `
+    SELECT s.solicId, 
+            s.fk_tipoMoviId, 
+            s.fk_usuarioId, 
+            s.fk_qtdItemId,
+            c.fk_categoriaId,
+            c.cadItemId,
+            c.nome_item,   
+            cat.nome_categoria,
+            c.qtdMin,
+            s.qtdEntrada, 
+            s.qtdSaida, 
+            s.status, 
+            s.valor_entrada,
+            s.data
+    FROM solicitacaoProd s
+    INNER JOIN qtditem q ON s.fk_qtdItemId = q.qtdItemId
+    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
+    WHERE s.solicId = ?`;
+
+  db.query(sql, [solicId], (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+    if (data.length === 0) {
+      return res.status(404).json({
+        message: 'Solicitação não encontrada'
+      });
+    }
+    res.status(200).json(data);
+  });
+});
+
 
 // Altera uma solicitação baseado no ID
 router.put('/:id', (req, res) => {
