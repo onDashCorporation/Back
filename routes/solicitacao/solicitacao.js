@@ -457,22 +457,22 @@ router.get('/teste/:solicId', (req, res) => {
 
 
 // Altera uma solicitação baseado no ID
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const id = req.params.id;
   let {
     qtdEntrada,
     qtdSaida,
     fk_tipoMoviId,
     fk_usuarioId,
-    fk_qtdItemId,
     fk_cadItemId,
+    fk_qtdItemId,
     status,
     valor_entrada
   } = req.body;
 
   console.log(status)
 
-  if (!fk_usuarioId || !fk_qtdItemId || !fk_cadItemId) {
+  if (!fk_usuarioId || !fk_qtdItemId) {
     return res.status(400).json({
       message: 'Todos os campos são obrigatórios!'
     })
@@ -511,6 +511,27 @@ router.put('/:id', (req, res) => {
   if (qtdSaida > 0) {
     fk_tipoMoviId = 2
   }
+
+  if (!fk_cadItemId) {
+    try {
+      const getCadItemId = "SELECT fk_cadItemId FROM qtditem WHERE qtdItemId = ?";
+      const [rows] = await db.promise().query(getCadItemId, [fk_qtdItemId]);
+      if (rows.length === 0) {
+        return res.status(400).json({
+          message: "Item inválido (qtd)"
+        });
+      }
+      fk_cadItemId = rows[0].fk_cadItemId;
+    } catch (err) {
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+  }
+
+  console.log(fk_cadItemId)
+  console.log(typeof fk_cadItemId)
+
   const new_fk_tipoMoviId = parseInt(fk_tipoMoviId)
   const new_fk_usuarioId = parseInt(fk_usuarioId)
   const new_fk_qtdItemId = parseInt(fk_qtdItemId)
