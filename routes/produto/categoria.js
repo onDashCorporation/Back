@@ -15,21 +15,21 @@ const createDBConnection = require('../../db')
 const db = createDBConnection() 
 
 router.post('/', (req, res) => {
-    const{nome} = req.body
+    const{nome_categoria} = req.body
 
-    if(!nome){
+    if(!nome_categoria){
         return res.status(400).json({message: 'Todos os campos são obrigatórios!'})
     }
 
     const categoriaPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome.match(categoriaPattern)) {
+    if (!nome_categoria.match(categoriaPattern)) {
         return res.status(400).json({ message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
 
-    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE nome = ?";
-    db.query(validationCategoria, [nome], (err, result) => {
+    const validationCategoria = "SELECT COUNT(*) AS count FROM categoria WHERE nome_categoria = ?";
+    db.query(validationCategoria, [nome_categoria], (err, result) => {
         if (err) {
              return res.status(500).json({ error: err.message });
          }
@@ -39,8 +39,8 @@ router.post('/', (req, res) => {
             }
 
 
-        const sql = "INSERT INTO categoria (`nome`) VALUES (?)";
-        const values = [nome];
+        const sql = "INSERT INTO categoria (`nome_categoria`) VALUES (?)";
+        const values = [nome_categoria];
     
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -54,8 +54,8 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT categoriaId, nome FROM categoria";
-    const values = [req.body.categoriaId, req.body.nome];
+    const sql = "SELECT cateId, nome_categoria FROM categoria";
+    const values = [req.body.cateId, req.body.nome_categoria];
     
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -69,7 +69,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "SELECT categoriaId, nome FROM categoria WHERE categoriaId = ?";
+        const sql = "SELECT cateId, nome_categoria FROM categoria WHERE cateId = ?";
         const values = [id];
      
         db.query(sql, values, (err, data) => {
@@ -85,20 +85,20 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
     const id = req.params.id;
-    const{ nome } = req.body
+    const{ nome_categoria } = req.body
 
-    if(!nome){
+    if(!nome_categoria){
         return res.status(400).json({message: 'Todos os campos são obrigatórios!'})
     }
     const categoriaPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome.match(categoriaPattern)) {
+    if (!nome_categoria.match(categoriaPattern)) {
         return res.status(400).json({ message: 'O nome da categoria deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
     
-    const sql = "UPDATE categoria SET nome = ? WHERE categoriaId = ?";
-    const values = [nome, id];
+    const sql = "UPDATE categoria SET nome_categoria = ? WHERE cateId = ?";
+    const values = [nome_categoria, id];
      
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -113,7 +113,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "DELETE FROM categoria WHERE categoriaId = ?";
+        const sql = "DELETE FROM categoria WHERE cateId = ?";
         const values = [id];
          
         db.query(sql, values, (err, data) => {

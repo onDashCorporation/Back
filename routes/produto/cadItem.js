@@ -16,34 +16,22 @@ const express = require('express');
 
 const router = express.Router();
 
-const createDBConnection = require('../../db')
+const createDBConnection = require('../../db.js')
 const db = createDBConnection()
 
-//  const verifyjwt = require('../../middleware/jwt_autorization')
+const uploadS3 = require('../../config/upload-s3.js')
+const path = require('path');
+const multer = require('multer');
 
-const multer = require('multer')
-const path = require('path')
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'img')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
-    }
-})
 
-const upload = multer({
-    storage: storage
-})
-
-router.post('/upload', upload.single('foto'), (req, res) => {
+router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     console.log(req.file)
-    const foto = req.file.filename
-    const sql = "UPDATE itens SET foto=?"
+    const foto = req.file.location
+    const sql = "UPDATE cadastroItem SET foto=?"
     db.query(sql, [foto], (err, result) => {
         if (err) return res.json({
-            Messge: "Error"
+            Message: "Error"
         })
         return res.json({
             Status: "Sucess"
@@ -51,65 +39,51 @@ router.post('/upload', upload.single('foto'), (req, res) => {
     })
 })
 
-// router.get('/', verifyjwt, (req,res) => {
-//     return res.json({Status: "Sucesso", usuarioId: req.usuarioId})
-// })
 
-router.post('/', upload.single('foto'), (req, res) => {
+
+router.post('/', multer(uploadS3).single("foto"), (req, res) => {
     const {
         cadItemId,
-        nome,
-        qtdMinima,
+        nome_item,
+        qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
-
-    if (!nome || !qtdMinima || !fk_categoriaId || !foto) {
+    const foto = req.file ? req.file.location : ''
+    
+    if (!nome_item || !qtdMin || !fk_categoriaId) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
     }
 
-    if (qtdMinima < 0) {
+    if (qtdMin < 0) {
         return res.status(400).json({
             message: 'A quantidade minima não pode ser menor do que 0'
         })
     }
-  
+
     const itemPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
 
-    if (!nome.match(itemPattern)) {
+    if (!nome_item.match(itemPattern)) {
         return res.status(400).json({
             message: 'O nome do item deve ter apenas a primeira letra da sentença maiuscula'
         })
     }
-    console.log(typeof fk_categoriaId) 
+    console.log(typeof fk_categoriaId)
 
     const new_fk_categoriaId = parseInt(fk_categoriaId)
-    console.log(typeof new_fk_categoriaId) 
-    console.log(new_fk_categoriaId) 
+    // console.log(typeof new_fk_categoriaId) 
+    // console.log(new_fk_categoriaId) 
 
     if (!Number.isInteger(new_fk_categoriaId)) {
         return res.status(400).json({
             message: 'Insira o id da categoria como um número inteiro'
         });
     }
-    // if (!Number.isInteger(fk_categoriaId)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id da categoria como um número inteiro'
-    //     });
-    // }
 
-    // if (!String(fk_categoriaId).match(itemPattern)) {
-    //     return res.status(400).json({
-    //         message: 'Insira o id do item'
-    //     })
-    // }
-
-
-    const validationItem = "SELECT COUNT(*) AS count FROM cadastroitem WHERE nome = ?"
-    db.query(validationItem, [nome], (err, result) => {
+    const validationItem = "SELECT COUNT(*) AS count FROM cadastroItem WHERE nome_item = ?"
+    db.query(validationItem, [nome_item], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -122,8 +96,8 @@ router.post('/', upload.single('foto'), (req, res) => {
             });
         }
 
-        const validationCategoria = "SELECT categoriaId FROM categoria WHERE nome = ?";
-        // db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+        const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
+
         db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
             if (err) {
                 return res.status(500).json({
@@ -135,12 +109,12 @@ router.post('/', upload.single('foto'), (req, res) => {
                     message: 'A categoria especificada não existe'
                 });
             }
-            
-            const categoriaId = result[0].categoriaId;
 
-            const sql = "INSERT INTO cadastroitem (`foto`, `nome`, `qtdMinima`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
-            // const values = [foto.filename, nome, qtdMinima, fk_categoriaId];
-            const values = [foto.filename, nome, qtdMinima, categoriaId];
+
+            const new_fk_categoriaId = result[0].cateId;
+
+            const sql = "INSERT INTO cadastroItem (`foto`, `nome_item`, `qtdMin`, `fk_categoriaId`) VALUES (?, ?, ?, ?)";
+            const values = [foto, nome_item, qtdMin, new_fk_categoriaId];
 
             db.query(sql, values, (err, data) => {
                 if (err) {
@@ -152,15 +126,14 @@ router.post('/', upload.single('foto'), (req, res) => {
                         message: 'Dados inseridos no sistema com sucesso'
                     })
                 }
-                // res.status(201).json(data);
             });
         });
     });
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT cadItemId, foto, nome, qtdMinima, fk_categoriaId FROM cadastroitem";
-    const values = [req.body.cadItemId, req.body.foto, req.body.nome, req.body.qtdMinima, req.body.fk_categoriaId];
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem";
+    const values = [req.body.cadItemId, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
 
     db.query(sql, values, (err, data) => {
         if (err) {
@@ -170,13 +143,12 @@ router.get('/', (req, res) => {
         } else {
             res.status(201).json(data);
         }
-        // res.status(201).json(data);
     });
 });
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT cadItemId, foto, nome, qtdMinima, fk_categoriaId FROM cadastroitem WHERE cadItemId = ?";
+    const sql = "SELECT cadItemId, foto, nome_item, qtdMin, fk_categoriaId FROM cadastroItem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -195,41 +167,48 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', upload.single('foto'), (req, res) => {
+router.put('/:id', multer(uploadS3).single("foto"), (req, res) => {
     const id = req.params.id;
     const {
-        nome,
-        qtdMinima,
+        cadItemId,
+        nome_item,
+        qtdMin,
         fk_categoriaId
     } = req.body
-    const foto = req.file
+    const foto = req.file.location
 
-    if (!nome || !qtdMinima || !fk_categoriaId || !foto) {
+    if (!nome_item || !qtdMin || !fk_categoriaId || !foto) {
         return res.status(400).json({
             message: 'Todos os itens são obrigatórios'
         })
     }
 
-    if (qtdMinima < 0) {
+    if (qtdMin < 0) {
         return res.status(400).json({
             message: 'A quantidade minima não pode ser menor do que 0'
         })
     }
-    if (!Number.isInteger(fk_categoriaId)) {
-        return res.status(400).json({
-            message: 'Insira o id doa categoria como um número inteiro'
-        });
-    }
 
     const itemPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome.match(itemPattern)) {
+
+    if (!nome_item.match(itemPattern)) {
         return res.status(400).json({
             message: 'O nome do item deve ter apenas a primeira letra da sentença maiuscula'
         })
     }
-    const validationCategoria = "SELECT fk_categoriaId FROM categoria WHERE nome = ?";
-    db.query(validationCategoria, [fk_categoriaId], (err, result) => {
+    console.log(typeof fk_categoriaId)
+
+    const new_fk_categoriaId = parseInt(fk_categoriaId)
+
+    if (!Number.isInteger(new_fk_categoriaId)) {
+        return res.status(400).json({
+            message: 'Insira o id da categoria como um número inteiro'
+        });
+    }
+
+    const validationCategoria = "SELECT cateId FROM categoria WHERE cateId = ?";
+    db.query(validationCategoria, [new_fk_categoriaId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
@@ -240,10 +219,9 @@ router.put('/:id', upload.single('foto'), (req, res) => {
                 message: 'A categoria especificada não existe'
             });
         }
-        const fk_categoriaId = result[0].fk_categoriaId;
 
-        const sql = "UPDATE cadastroitem SET foto =?, nome = ?, qtdMinima = ?, fk_categoriaId = ? WHERE itemId = ?";
-        const values = [foto.filename, nome, qtdMinima, fk_categoriaId, id];
+        const sql = "UPDATE cadastroItem SET foto =?, nome_item = ?, qtdMin = ?, fk_categoriaId = ? WHERE cadItemId = ?";
+        const values = [foto, nome_item, qtdMin, fk_categoriaId, id];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -265,7 +243,7 @@ router.put('/:id', upload.single('foto'), (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM cadastroitem WHERE itemId = ?";
+    const sql = "DELETE FROM cadastroItem WHERE cadItemId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {

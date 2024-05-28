@@ -17,13 +17,13 @@ dotenv.config()
 
 app.use(express.urlencoded({extended: true}))
 
-// db.connect((err) => {
-//     if (err) {
-//         console.error('Erro ao conectar ao banco de dados:', err.message);
-//         return;
-//     }
-//     console.log('Conexão com o banco de dados estabelecida.');
-// });
+db.connect((err) => {
+    if (err) {
+        console.error('Erro ao conectar ao banco de dados:', err.message);
+        return;
+    }
+    console.log('Conexão com o banco de dados estabelecida.');
+});
 
 // db.query("SELECT id, name, email, password FROM login", function (err, rows, fields) {
 //     if (!err) {
@@ -49,10 +49,13 @@ const resetPasswordRoutes = require('./routes/login/resetPassword');
 app.use('/reset-password', resetPasswordRoutes);
 
 const cadItemRoutes = require('./routes/produto/cadItem'); 
-app.use('/item', cadItemRoutes);
+app.use('/caditem', cadItemRoutes);
 
 const categoriaRoutes = require('./routes/produto/categoria'); 
 app.use('/categoria', categoriaRoutes);
+
+const estoqueRoutes = require('./routes/produto/estoque'); 
+app.use('/estoque', estoqueRoutes);
 
 const qtdItemRoutes = require('./routes/produto/qtdItem'); 
 app.use('/qtditem',qtdItemRoutes);
@@ -71,6 +74,9 @@ app.use('/cargo', cargoRoutes);
 
 const departamentoRoutes = require('./routes/autenticacao/departamento'); 
 app.use('/departamento', departamentoRoutes);
+
+// const excelRoutes = require('./routes/excel/excel'); 
+// app.use('/excel', excelRoutes);
 
 const port = process.env.PORT || 8081
 

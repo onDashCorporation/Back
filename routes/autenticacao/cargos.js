@@ -29,7 +29,7 @@ router.post('/', (req, res) => {
         return res.status(400).json({ message: 'O nome do cargo deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
-    const validationCargo = "SELECT COUNT(*) AS count FROM cargo WHERE cargo_nome = ?";
+    const validationCargo = "SELECT COUNT(*) AS count FROM cargos WHERE cargo_nome = ?";
     db.query(validationCargo, [cargo_nome], (err, result) => {
         if (err) {
              return res.status(500).json({ error: err.message });
@@ -42,7 +42,7 @@ router.post('/', (req, res) => {
                 return res.status(400).json({ message: 'ID de cargo deve estar entre 1 e 3' });
             }
 
-            const sql = "INSERT INTO cargo (`cargo_nome`) VALUES (?)";
+            const sql = "INSERT INTO cargos (`cargo_nome`) VALUES (?)";
             const values = [cargoId, cargo_nome];
             // const values = [cargo_nome];
             
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT cargoId, cargo_nome FROM cargo";
+    const sql = "SELECT cargoId, cargo_nome FROM cargos";
     const values = [req.body.cargoId, req.body.cargo_nome];
     
         db.query(sql, values, (err, data) => {
@@ -74,7 +74,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "SELECT cargoId, cargo_nome FROM cargo WHERE cargoId = ?";
+        const sql = "SELECT cargoId, cargo_nome FROM cargos WHERE cargoId = ?";
         const values = [id];
      
         db.query(sql, values, (err, data) => {
@@ -103,8 +103,8 @@ router.put('/:id', (req, res) => {
         return res.status(400).json({ message: 'O nome do cargo deve ter apenas a primeira letra da sentença maiuscula' })
     }
     
-    const validationCargo = "SELECT COUNT(*) AS count FROM cargo WHERE cargo_nome = ?";
-    const validationCargoId = "SELECT cargoId FROM cargo WHERE cargoId = ?";
+    const validationCargo = "SELECT COUNT(*) AS count FROM cargos WHERE cargo_nome = ?";
+    const validationCargoId = "SELECT cargoId FROM cargos WHERE cargoId = ?";
     db.query(validationCargo, [cargo_nome], (err, result) => {
         if (err) {
              return res.status(500).json({ error: err.message });
@@ -122,7 +122,7 @@ router.put('/:id', (req, res) => {
                     return res.status(400).json({ message: 'ID de cargo inválido' });
                 }
     
-                const sql = "UPDATE cargo SET cargo_nome = ? WHERE cargoId = ?";
+                const sql = "UPDATE cargos SET cargo_nome = ? WHERE cargoId = ?";
                 const values = [nome, id];
                 
                     db.query(sql, values, (err, data) => {
@@ -140,7 +140,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-        const sql = "DELETE FROM cargo WHERE cargoId = ?";
+        const sql = "DELETE FROM cargos WHERE cargoId = ?";
         const values = [id];
          
         db.query(sql, values, (err, data) => {

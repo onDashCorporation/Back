@@ -1,9 +1,9 @@
-// URL base de departamento: http://localhost:3000/departamento/
+// URL base da controle: http://localhost:3000/estoque/
 /*
 Modelo de inserção de dados para teste no postman: 
 
 {
-    "nome_depart": "TI"
+    "fk_solicId":1
 }
 */
 
@@ -16,40 +16,34 @@ const db = createDBConnection()
 
 router.post('/', (req, res) => {
     const {
-        nome_depart
+        qtdeTotal,
+        fk_qtdItemId,
     } = req.body
 
-    if (!nome_depart) {
+    if (!qtdeTotal || !fk_qtdItemId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
-
-    const departamentoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
-
-    if (!nome_depart.match(departamentoPattern)) {
-        return res.status(400).json({
-            message: 'O nome do departamento deve ter apenas a primeira letra da sentença maiuscula'
-        })
-    }
-
-    const validationDepartamento = "SELECT COUNT(*) AS count FROM departamento WHERE nome_depart = ?";
-    db.query(validationDepartamento, [nome_depart], (err, result) => {
+    const validationQtdItem = "SELECT COUNT(*) AS count FROM qtditem WHERE qtdItemId = ?";
+    db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        const departamentoExists = result[0].count > 0;
-        if (departamentoExists) {
+        const qtdItemExists = result[0].count > 0;
+        if (!qtdItemExists) {
             return res.status(400).json({
-                message: 'Este departamento já está cadastrado'
+                message: 'Item inválido (qtd)'
             });
         }
 
-
-        const sql = "INSERT INTO departamento (`nome_depart`) VALUES (?)";
-        const values = [nome_depart];
+        const sql = "INSERT INTO estoque (`qtdeTotal`, `fk_qtdItemId`) VALUES (?, ?)";
+        const values = [
+            qtdeTotal,
+            fk_qtdItemId,
+        ];
 
         db.query(sql, values, (err, data) => {
             if (err) {
@@ -66,23 +60,22 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    const sql = "SELECT depId, nome_depart FROM departamento";
-    const values = [req.body.depId, req.body.nome_depart];
+    const sql = "SELECT * FROM view_estoque";
 
-    db.query(sql, values, (err, data) => {
+    db.query(sql, (err, data) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         } else {
-            res.status(201).json(data);
+            res.status(200).json(data);
         }
     });
 });
 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "SELECT depId, nome_depart FROM departamento WHERE depId = ?";
+    const sql = "SELECT qtdeTotal, fk_qtdItemId, FROM view_estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -93,7 +86,7 @@ router.get('/:id', (req, res) => {
         }
         if (data.length === 0) {
             return res.status(404).json({
-                message: 'Departamento não encontrado'
+                message: 'Estoque não encontrado'
             });
         }
         res.status(200).json(data[0]);
@@ -103,45 +96,58 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
     const id = req.params.id;
     const {
-        nome_depart
+        qtdeTotal,
+        fk_qtdItemId
     } = req.body
 
-    if (!nome_depart) {
+    if (!qtdeTotal || !fk_qtdItemId) {
         return res.status(400).json({
             message: 'Todos os campos são obrigatórios!'
         })
     }
-    const departamentoPattern = /^[A-Z][a-zà-ú ]*$/; // regex para que apenas a primeira letra da sentença seja maiuscula
 
-    if (!nome_depart.match(departamentoPattern)) {
-        return res.status(400).json({
-            message: 'O nome da departamento deve ter apenas a primeira letra da sentença maiuscula'
-        })
-    }
-
-    const sql = "UPDATE departamento SET nome_depart = ? WHERE depId = ?";
-    const values = [nome_depart, id];
-
-    db.query(sql, values, (err, data) => {
+    const validationQtdItem = "SELECT COUNT(*) AS count FROM qtditem WHERE qtdItemId = ?";
+    db.query(validationQtdItem, [fk_qtdItemId], (err, result) => {
         if (err) {
             return res.status(500).json({
                 error: err.message
             });
         }
-        if (data.length === 0) {
-            return res.status(404).json({
-                message: 'Departamento não encontrado'
+        const qtdItemExists = result[0].count > 0;
+        if (!qtdItemExists) {
+            return res.status(400).json({
+                message: 'Item inválido (qtd)'
             });
         }
-        res.status(200).json({
-            message: 'Dados atualizados do sistema com sucesso'
+
+
+        const sql = "UPDATE estoque SET qtdeTotal = ?, fk_qtdItemId = ? WHERE estoqueId = ? ";
+        const values = [qtdeTotal,
+            fk_qtdItemId,
+            id
+        ];
+
+        db.query(sql, values, (err, data) => {
+            if (err) {
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
+            if (data.length === 0) {
+                return res.status(404).json({
+                    message: 'Estoque não encontrado'
+                });
+            }
+            res.status(200).json({
+                message: 'Dados atualizados do sistema com sucesso'
+            });
         });
     });
 });
 
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "DELETE FROM departamento WHERE depId = ?";
+    const sql = "DELETE FROM estoque WHERE estoqueId = ?";
     const values = [id];
 
     db.query(sql, values, (err, data) => {
@@ -152,7 +158,7 @@ router.delete('/:id', (req, res) => {
         }
         if (data.length === 0) {
             return res.status(404).json({
-                message: 'Departamento não encontrada'
+                message: 'Estoque não encontrado'
             });
         }
         res.status(200).json({
