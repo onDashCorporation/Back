@@ -190,43 +190,59 @@ router.get('/', (req, res) => {
 });
 
 
-// Pega uma a solicitação baseado no ID do usuario
 router.get('/:id', (req, res) => {
   const id = req.params.id;
-  const sql = "SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
-  const values = [id];
 
-  db.query(sql, values, (err, data) => {
+  const sqlSolicitacao = `
+    SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
+    FROM solicitacaoProd 
+    WHERE solicId = ?
+  `;
+
+  const sqlItens = `
+    SELECT fk_cadItemId, qtde 
+    FROM lista_produtos 
+    WHERE fk_solicId = ?
+  `;
+
+  db.query(sqlSolicitacao, [id], (err, solicitacaoData) => {
     if (err) {
-      return res.status(500).json({
-        error: err.message
-      });
+      return res.status(500).json({ error: err.message });
     }
-    if (data.length === 0) {
-      return res.status(404).json({
-        message: 'Solicitação não encontrada'
-      });
+    if (solicitacaoData.length === 0) {
+      return res.status(404).json({ message: 'Solicitação não encontrada' });
     }
-    res.status(200).json(data[0]);
+
+    db.query(sqlItens, [id], (err, itensData) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Combine the results
+      const solicitacao = solicitacaoData[0];
+      solicitacao.itens = itensData;
+
+      res.status(200).json(solicitacao);
+    });
   });
 });
 
 // Pega uma a solicitação baseado no ID do usuario
 router.get('/user/:userId', (req, res) => {
   const userId = req.params.userId;
+
   const sqlSolicitacoes = `
     SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
     FROM solicitacaoProd
+    WHERE fk_usuarioId = ?
   `;
 
   const sqlItens = `
     SELECT fk_solicId, fk_cadItemId, qtde 
     FROM lista_produtos
   `;
-  const values = [userId];
 
-    
-  db.query(sqlSolicitacoes, (err, solicitacoesData) => {
+  db.query(sqlSolicitacoes, [userId], (err, solicitacoesData) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -234,119 +250,98 @@ router.get('/user/:userId', (req, res) => {
       return res.status(404).json({ message: 'Nenhuma solicitação encontrada' });
     }
 
-  db.query(sqlItens, (err, itensData) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    const itensMap = {};
-    itensData.forEach(item => {
-      const { fk_solicId, fk_cadItemId, qtde } = item;
-      if (!itensMap[fk_solicId]) {
-        itensMap[fk_solicId] = [];
+    db.query(sqlItens, (err, itensData) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
       }
-      itensMap[fk_solicId].push({ fk_cadItemId, qtde });
-    });
 
-    const solicitacoes = solicitacoesData.map(solicitacao => {
-      return {
-        ...solicitacao,
-        itens: itensMap[solicitacao.solicId] || []
-      };
-    });
+      const itensMap = {};
+      itensData.forEach(item => {
+        const { fk_solicId, fk_cadItemId, qtde } = item;
+        if (!itensMap[fk_solicId]) {
+          itensMap[fk_solicId] = [];
+        }
+        itensMap[fk_solicId].push({ fk_cadItemId, qtde });
+      });
 
-    res.status(200).json(solicitacoes);
+      const solicitacoes = solicitacoesData.map(solicitacao => {
+        return {
+          ...solicitacao,
+          itens: itensMap[solicitacao.solicId] || []
+        };
+      });
+
+      res.status(200).json(solicitacoes);
+    });
   });
 });
-})
+
 
 
 // Pega uma a solicitação baseado no ID do tipo de movimentação
 router.get('/tipoMovi/:tmId', (req, res) => {
   const tmId = req.params.tmId;
-  const sql = "SELECT fk_tipoMoviId, solicId, data, fk_usuarioId, Id, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_tipoMoviId = ?";
-  const values = [tmId];
-  let qtdMovimetacao = 0
 
-  db.query(sql, values, (err, data) => {
+  const sqlSolicitacoes = `
+    SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
+    FROM solicitacaoProd
+    WHERE fk_tipoMoviId = ?
+  `;
+
+  const sqlItens = `
+    SELECT fk_solicId, fk_cadItemId, qtde 
+    FROM lista_produtos
+  `;
+
+  db.query(sqlSolicitacoes, [tmId], (err, solicitacoesData) => {
     if (err) {
-      return res.status(500).json({
-        error: err.message
-      });
+      return res.status(500).json({ error: err.message });
     }
 
-    qtdMovimetacao = data.length; 
-    if (qtdMovimetacao === 0) {
-      return res.status(404).json({
-        message: 'Nenhuma solicitação encontrada para este usuário'
-      });
+    if (solicitacoesData.length === 0) {
+      return res.status(404).json({ message: 'Nenhuma solicitação encontrada para este tipo de movimentação' });
     }
-    res.status(200).json({
-      movimetacoes: data,
-      countador: qtdMovimetacao 
+
+    db.query(sqlItens, (err, itensData) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      const itensMap = {};
+      itensData.forEach(item => {
+        const { fk_solicId, fk_cadItemId, qtde } = item;
+        if (!itensMap[fk_solicId]) {
+          itensMap[fk_solicId] = [];
+        }
+        itensMap[fk_solicId].push({ fk_cadItemId, qtde });
+      });
+
+      const solicitacoes = solicitacoesData.map(solicitacao => ({
+        ...solicitacao,
+        itens: itensMap[solicitacao.solicId] || []
+      }));
+
+      res.status(200).json({
+        movimentacoes: solicitacoes,
+        contador: solicitacoesData.length
+      });
     });
   });
 });
 
 // Pega o item (cadastro e quantidade) baseado no id da solicitação
-// router.get('/item/:solicId', (req, res) => {
-//   const solicId = req.params.solicId;
-//   const sql = `
-//     SELECT s.solicId, 
-//             s.fk_tipoMoviId, 
-//             s.fk_usuarioId, 
-//             s.Id,
-//             c.fk_categoriaId,
-//             c.cadItemId,
-//             c.nome_item,   
-//             cat.nome_categoria,
-//             c.qtdMin,
-//             s.qtdEntrada, 
-//             s.qtdSaida, 
-//             s.status, 
-//             s.valor_entrada,
-//             s.data
-//     FROM solicitacaoProd s
-//     INNER JOIN qtditem q ON s.Id = q.qtdItemId
-//     INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
-//     INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
-//     WHERE s.solicId = ?`;
-
-//   db.query(sql, [solicId], (err, data) => {
-//     if (err) {
-//       return res.status(500).json({
-//         error: err.message
-//       });
-//     }
-//     if (data.length === 0) {
-//       return res.status(404).json({
-//         message: 'Solicitação não encontrada'
-//       });
-//     }
-//     res.status(200).json(data[0]);
-//   });
-
-// Pega o item (cadastro e quantidade) baseado no id da solicitação
 router.get('/item/:solicId', (req, res) => {
   const solicId = req.params.solicId;
-  const sql = `
-    SELECT s.solicId, 
-            s.fk_tipoMoviId, 
-            s.fk_usuarioId, 
-            s.Id,
-            c.fk_categoriaId,
-            c.cadItemId,
-            c.nome_item,   
-            cat.nome_categoria,
-            c.qtdMin, 
-            s.status, 
-            s.valor_entrada,
-            s.data
-    FROM solicitacaoProd s
-    INNER JOIN qtditem q ON s.Id = q.qtdItemId
-    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
-    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
-    WHERE s.solicId = ?`;
+  const sqlSolicitacoes = `
+    SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
+    FROM solicitacaoProd
+    WHERE fk_tipoMoviId = ?
+  `;
+
+  const sqlItens = `
+    SELECT fk_solicId, fk_cadItemId, qtde 
+    FROM lista_produtos
+  `;
 
   db.query(sql, [solicId], (err, data) => {
     if (err) {
@@ -362,45 +357,6 @@ router.get('/item/:solicId', (req, res) => {
     res.status(200).json(data);
   });
 });
-
-router.get('/teste/:solicId', (req, res) => {
-  const solicId = req.params.solicId;
-  const sql = `
-    SELECT s.solicId, 
-            s.fk_tipoMoviId, 
-            s.fk_usuarioId, 
-            s.Id,
-            c.fk_categoriaId,
-            c.cadItemId,
-            c.nome_item,   
-            cat.nome_categoria,
-            c.qtdMin,
-            s.qtdEntrada, 
-            s.qtdSaida, 
-            s.status, 
-            s.valor_entrada,
-            s.data
-    FROM solicitacaoProd s
-    INNER JOIN qtditem q ON s.Id = q.qtdItemId
-    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
-    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId
-    WHERE s.solicId = ?`;
-
-  db.query(sql, [solicId], (err, data) => {
-    if (err) {
-      return res.status(500).json({
-        error: err.message
-      });
-    }
-    if (data.length === 0) {
-      return res.status(404).json({
-        message: 'Solicitação não encontrada'
-      });
-    }
-    res.status(200).json(data);
-  });
-});
-
 
 // Altera uma solicitação baseado no ID
 router.put('/:id', async (req, res) => {
