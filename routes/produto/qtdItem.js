@@ -100,6 +100,70 @@ router.get('/', (req, res) => {
     });
 });
 
+// NOVA ROTA
+router.get('/cadItem', (req, res) => {
+    const sql =  `
+    SELECT
+    c.fk_categoriaId,
+    q.fk_cadItemId, 
+    q.qtdItemId, 
+    c.foto,
+    c.nome_item,
+    cat.nome_categoria,
+    c.qtdMin,
+    q.qtde, 
+    q.valorItem
+    FROM qtditem q
+    INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+    INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId;
+    ` 
+    const values = [req.body.qtdItemId, req.body.fk_cadItemId, req.body.qtde, req.body.valorItem, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
+
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.status(500).json({
+                error: err.message
+            });
+        } else {
+            if (data.length > 0) {
+                res.status(200).json(data); 
+            } else {
+                res.status(404).json({ error: "Item não encontrado" });
+            }
+        }
+    });
+});
+
+//Não deu certo
+// router.post('/cadItem', (req, res) => {
+//     const sql =  `
+//     SELECT
+//     c.fk_categoriaId,
+//     q.fk_cadItemId, 
+//     q.qtdItemId, 
+//     c.foto,
+//     c.nome_item,
+//     cat.nome_categoria,
+//     c.qtdMin,
+//     q.qtde, 
+//     q.valorItem
+//     FROM qtditem q
+//     INNER JOIN cadastroItem c ON q.fk_cadItemId = c.cadItemId
+//     INNER JOIN categoria cat ON cat.cateId = c.fk_categoriaId;
+//     ` 
+//     const values = [req.body.qtdItemId, req.body.fk_cadItemId, req.body.qtde, req.body.valorItem, req.body.foto, req.body.nome_item, req.body.qtdMin, req.body.fk_categoriaId];
+
+//     db.query(sql, values, (err, data) => {
+//         if (err) {
+//             return res.status(500).json({
+//                 error: err.message
+//             });
+//         } else {
+//             res.status(200).json(data); 
+//         }
+//     });
+// });
+
 router.get('/:id', (req, res) => {
     const id = req.params.id;
     const sql = "SELECT qtdItemId, fk_cadItemId, qtde, valorItem FROM qtditem WHERE qtdItemId = ?";
