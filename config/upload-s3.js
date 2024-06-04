@@ -1,19 +1,14 @@
-const { S3Client } = require("@aws-sdk/client-s3");
+const configS3 = require("../config/s3.config")
 const multerS3 = require("multer-s3");
 const crypto = require("crypto");
 
-require("dotenv").config();
+
+const config = new configS3()
 
 module.exports = {
   storage: multerS3({
-    s3: new S3Client({
-      credentials: {
-        accessKeyId: process.env.ACESS_KEY_ID,
-        secretAccessKey: process.env.SECRET_ACESS_KEY
-      },
-      region: process.env.REGION
-    }),
-    bucket: process.env.BUCKET_NAME,
+    s3: config.client,
+    bucket: config.bucket,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: "public-read",
     key: (req, file, cb) => {

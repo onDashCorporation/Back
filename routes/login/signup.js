@@ -42,7 +42,7 @@ router.post('/upload', multer(uploadS3).single("foto"), (req, res) => {
     })
 })
 
-router.post('/', multer(uploadS3).single("foto"), (req, res) => {
+router.post('/', multer(uploadS3).single("foto"), (req, res, next) => {
     const {
         usuNome,
         email,
@@ -66,6 +66,7 @@ router.post('/', multer(uploadS3).single("foto"), (req, res) => {
         })
     }
 
+    next()
     // if (!Number.isInteger(fk_cargoId) || !Number.isInteger(fk_departamentoId)) {
     //     return res.status(400).json({
     //         message: 'Insira os ids do cargo e do departamento como um número inteiro'
