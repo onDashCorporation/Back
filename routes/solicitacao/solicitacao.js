@@ -189,7 +189,8 @@ router.get('/', (req, res) => {
   });
 });
 
-// Pega uma a solicitação baseado no ID
+
+// Pega uma a solicitação baseado no ID do usuario
 router.get('/:id', (req, res) => {
   const id = req.params.id;
   const sql = "SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE solicId = ?";
@@ -213,23 +214,51 @@ router.get('/:id', (req, res) => {
 // Pega uma a solicitação baseado no ID do usuario
 router.get('/user/:userId', (req, res) => {
   const userId = req.params.userId;
-  const sql = "SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, fk_cadItemId, status, valor_entrada FROM solicitacaoProd WHERE fk_usuarioId = ?";
+  const sqlSolicitacoes = `
+    SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
+    FROM solicitacaoProd
+  `;
+
+  const sqlItens = `
+    SELECT fk_solicId, fk_cadItemId, qtde 
+    FROM lista_produtos
+  `;
   const values = [userId];
 
-  db.query(sql, values, (err, data) => {
+    
+  db.query(sqlSolicitacoes, (err, solicitacoesData) => {
     if (err) {
-      return res.status(500).json({
-        error: err.message
-      });
+      return res.status(500).json({ error: err.message });
     }
-    if (data.length === 0) {
-      return res.status(404).json({
-        message: 'Nenhuma solicitação encontrada para este usuário'
-      });
+    if (solicitacoesData.length === 0) {
+      return res.status(404).json({ message: 'Nenhuma solicitação encontrada' });
     }
-    res.status(200).json(data);
+
+  db.query(sqlItens, (err, itensData) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    const itensMap = {};
+    itensData.forEach(item => {
+      const { fk_solicId, fk_cadItemId, qtde } = item;
+      if (!itensMap[fk_solicId]) {
+        itensMap[fk_solicId] = [];
+      }
+      itensMap[fk_solicId].push({ fk_cadItemId, qtde });
+    });
+
+    const solicitacoes = solicitacoesData.map(solicitacao => {
+      return {
+        ...solicitacao,
+        itens: itensMap[solicitacao.solicId] || []
+      };
+    });
+
+    res.status(200).json(solicitacoes);
   });
 });
+})
 
 
 // Pega uma a solicitação baseado no ID do tipo de movimentação
