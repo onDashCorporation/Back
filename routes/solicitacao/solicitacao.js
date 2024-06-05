@@ -30,7 +30,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 router.post("/", async (req, res) => {
-  const {
+  let {
     fk_tipoMoviId,
     fk_usuarioId,
     status,
