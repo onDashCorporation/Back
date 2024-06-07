@@ -30,18 +30,20 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 router.post("/", async (req, res) => {
-  let {
-    fk_tipoMoviId,
-    fk_usuarioId,
-    status,
-    itens,
-    valor_entrada
-  } = req.body;
+  let { fk_tipoMoviId, fk_usuarioId, status, itens, valor_entrada } = req.body;
 
   if (!fk_usuarioId || !itens || !Array.isArray(itens) || itens.length === 0) {
     return res.status(400).json({
       message: 'Todos os campos são obrigatórios, e itens devem ser uma lista com pelo menos um item!'
     });
+  }
+
+  for (let item of itens) {
+    if (item.valorItem === undefined || item.valorItem === null) {
+      return res.status(400).json({
+        message: 'O campo valorItem é obrigatório em todos os itens'
+      });
+    }
   }
 
   if (!status) {
@@ -84,27 +86,30 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Validate each fk_cadItemId before proceeding
-    const itemIds = itens.map(item => item.fk_cadItemId);
-    const validationItems = "SELECT cadItemId FROM cadastroItem WHERE cadItemId IN (?)";
-    db.query(validationItems, [itemIds], (err, results) => {
+    const itemNames = itens.map(item => item.nome_item);
+    const validationItems = "SELECT cadItemId, nome_item FROM cadastroItem WHERE nome_item IN (?)";
+    db.query(validationItems, [itemNames], (err, results) => {
       if (err) {
         return res.status(500).json({
           error: err.message
         });
       }
 
-      const validItemIds = results.map(row => row.cadItemId);
-      const invalidItemIds = itemIds.filter(id => !validItemIds.includes(id));
+      const validItemsMap = {};
+      results.forEach(row => {
+        validItemsMap[row.nome_item] = row.cadItemId;
+      });
 
-      if (invalidItemIds.length > 0) {
+      const invalidItems = itemNames.filter(name => !validItemsMap[name]);
+
+      if (invalidItems.length > 0) {
         return res.status(400).json({
-          message: `Itens inválidos: ${invalidItemIds.join(", ")}`
+          message: `Itens inválidos: ${invalidItems.join(", ")}`
         });
       }
 
-      const sql = "INSERT INTO solicitacaoProd (`data`, `fk_tipoMoviId`, `fk_usuarioId`, `status`, valor_entrada) VALUES (?, ?, ?, ?, ?)";
-      const values = [today, new_fk_tipoMoviId, new_fk_usuarioId, status, valor_entrada];
+      const sql = "INSERT INTO solicitacaoProd (`data`, `fk_tipoMoviId`, `fk_usuarioId`, `status`, `valor_entrada`) VALUES (NOW(), ?, ?, ?, ?)";
+      const values = [new_fk_tipoMoviId, new_fk_usuarioId, status, valor_entrada];
 
       db.query(sql, values, (err, data) => {
         if (err) {
@@ -113,8 +118,13 @@ router.post("/", async (req, res) => {
           });
         } else {
           const fk_solicId = data.insertId;
-          const listaProdutosSQL = "INSERT INTO lista_produtos (fk_cadItemId, qtde, fk_solicId) VALUES ?";
-          const listaProdutosValues = itens.map(item => [item.fk_cadItemId, item.qtde, fk_solicId]);
+          const listaProdutosSQL = "INSERT INTO lista_produtos (fk_cadItemId, qtde, fk_qtdItemId, fk_solicId) VALUES ?";
+          const listaProdutosValues = itens.map(item => [
+            validItemsMap[item.nome_item], 
+            item.qtde,
+            item.valorItem, 
+            fk_solicId
+          ]);
 
           db.query(listaProdutosSQL, [listaProdutosValues], (err) => {
             if (err) {
