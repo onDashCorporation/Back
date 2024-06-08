@@ -11,7 +11,8 @@ WORKDIR /backend
 COPY package*.json .
 
 # instala os pacotes necessários
-RUN npm ci --only=production
+RUN yarn global add pm2 -g 
+RUN npm ci --omit=dev
 
 # copia os arquivos para o usuario node
 COPY --chown=node:node . .
@@ -19,4 +20,4 @@ COPY --chown=node:node . .
 # usa um usuario padrão "node" que contem menos privilegios 
 USER node
 
-CMD ["npm","run","deploy"]
+CMD ["pm2-runtime","./config/ecosystem.config.js", "--no-daemon"]

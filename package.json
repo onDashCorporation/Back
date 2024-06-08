@@ -4,8 +4,7 @@
   "description": "Descrição... API - Back-End",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "deploy": "pm2 start ./config/ecosystem.config.js"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
