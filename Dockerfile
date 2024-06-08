@@ -19,4 +19,4 @@ COPY --chown=node:node . .
 # usa um usuario padrão "node" que contem menos privilegios 
 USER node
 
-CMD ["node","server.js"]
+CMD ["npm","run","deploy"]

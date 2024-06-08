@@ -3,12 +3,15 @@ module.exports = {
     {
       name: "api",
       script: "./server.js",
-      instances: 4,
+      instances: "max",
       autorestart: true,
-      max_memory_restart: "1G",
+      port: 8080,
+      max_memory_restart: "100M",
+      namespace: "api",
+      exec_mode: "cluster",
       env: {
         NODE_ENV: "production",
-      },
+        },
     },
   ],
 };
