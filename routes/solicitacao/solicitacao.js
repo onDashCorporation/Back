@@ -118,7 +118,7 @@ router.post("/", async (req, res) => {
           });
         } else {
           const fk_solicId = data.insertId;
-          const listaProdutosSQL = "INSERT INTO lista_produtos (fk_cadItemId, qtde, fk_qtdItemId, fk_solicId) VALUES ?";
+          const listaProdutosSQL = "INSERT INTO lista_produtos (fk_cadItemId, qtde, fk_solicId) VALUES ?";
           const listaProdutosValues = itens.map(item => [
             validItemsMap[item.nome_item], 
             item.qtde,
@@ -153,7 +153,6 @@ router.post("/", async (req, res) => {
   });
 });
 
-
 router.get('/', (req, res) => {
   const sqlSolicitacoes = `
     SELECT solicId, data, fk_tipoMoviId, fk_usuarioId, status, valor_entrada 
@@ -161,8 +160,10 @@ router.get('/', (req, res) => {
   `;
 
   const sqlItens = `
-    SELECT fk_solicId, fk_cadItemId, qtde 
-    FROM lista_produtos
+    SELECT fk_solicId, lp.fk_cadItemId, lp.qtde, cad.nome_item
+    FROM lista_produtos as lp
+    JOIN
+    cadastroItem cad on lp.fk_cadItemId = cad.cadItemId
   `;
 
   db.query(sqlSolicitacoes, (err, solicitacoesData) => {
@@ -180,11 +181,11 @@ router.get('/', (req, res) => {
 
       const itensMap = {};
       itensData.forEach(item => {
-        const { fk_solicId, fk_cadItemId, qtde } = item;
+        const { fk_solicId, fk_cadItemId, qtde, nome_item} = item;
         if (!itensMap[fk_solicId]) {
           itensMap[fk_solicId] = [];
         }
-        itensMap[fk_solicId].push({ fk_cadItemId, qtde });
+        itensMap[fk_solicId].push({ fk_cadItemId, qtde, nome_item});
       });
 
       const solicitacoes = solicitacoesData.map(solicitacao => {
@@ -228,7 +229,6 @@ router.get('/:id', (req, res) => {
         return res.status(500).json({ error: err.message });
       }
 
-      // Combine the results
       const solicitacao = solicitacaoData[0];
       solicitacao.itens = itensData;
 
