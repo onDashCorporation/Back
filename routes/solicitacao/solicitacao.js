@@ -38,13 +38,13 @@ router.post("/", async (req, res) => {
     });
   }
 
-  for (let item of itens) {
-    if (item.valorItem === undefined || item.valorItem === null) {
-      return res.status(400).json({
-        message: 'O campo valorItem é obrigatório em todos os itens'
-      });
-    }
-  }
+  // for (let item of itens) {
+  //   if (item.valorItem === undefined || item.valorItem === null) {
+  //     return res.status(400).json({
+  //       message: 'O campo valorItem é obrigatório em todos os itens'
+  //     });
+  //   }
+  // }
 
   if (!status) {
     status = "Novo";
